@@ -44,15 +44,16 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/join", "/posts/**", "/login").permitAll()
+                        .requestMatchers("/dailylog/join", "/dailylog/posts/**", "/dailylog/login").permitAll()
                         .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
                         .anyRequest().permitAll())
                 .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/dailylog/login")
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .failureHandler(loginFailureHandler)
                         .successHandler(loginSuccessHandler))
                 .formLogin(login -> login
-                        .loginPage("/login")
+                        .loginPage("/dailylog/login")
                         .loginProcessingUrl("/perform_login")
                         .defaultSuccessUrl("/")
                         .failureHandler(loginFailureHandler)
