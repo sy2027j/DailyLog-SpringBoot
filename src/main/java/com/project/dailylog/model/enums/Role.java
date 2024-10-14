@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Role {
 
-    GUSET("ROLE_GUEST", "비회원"),
     USER("ROLE_USER", "회원"),
     ADMIN("ROLE_ADMIN", "관리자");
 

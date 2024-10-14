@@ -3,6 +3,7 @@ package com.project.dailylog.security.service;
 import com.project.dailylog.model.dto.OAuthAttributes;
 import com.project.dailylog.model.entity.User;
 import com.project.dailylog.repository.UserRepository;
+import com.project.dailylog.security.user.CustomOAuth2User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -39,10 +40,12 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         User user = saveOrUpdate(registrationId, attributes);
 
-        return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
-                attributes.getAttributes(),
-                attributes.getNameAttributeKey());
+        //return new DefaultOAuth2User(
+        //        Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
+        //        attributes.getAttributes(),
+        //        attributes.getNameAttributeKey());
+
+        return new CustomOAuth2User(user, attributes.getAttributes());
     }
 
     private User saveOrUpdate(OAuthAttributes attributes) {
@@ -50,7 +53,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .map(entity -> entity.update(attributes.getName(), attributes.getProfile()))
     private User saveOrUpdate(String provider, OAuthAttributes attributes) {
         User user = userRepository.findByEmail(attributes.getEmail())
-                .map(entity -> entity.update(attributes.getEmail(), attributes.getName(), attributes.getProfile()))
+                .map(entity -> entity.update(attributes.getEmail(), attributes.getName(), attributes.getProfile(), provider))
                 .orElse(attributes.toEntity());
         return userRepository.save(user);
     }
