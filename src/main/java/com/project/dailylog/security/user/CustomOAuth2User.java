@@ -1,6 +1,8 @@
 package com.project.dailylog.security.user;
 
-import com.project.dailylog.model.entity.User;
+import com.project.dailylog.model.dto.OAuthAttributes;
+import com.project.dailylog.model.enums.Role;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -9,31 +11,38 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+@Getter
 public class CustomOAuth2User implements OAuth2User {
-    private User user;
-    private Map<String, Object> attributes;
+    private OAuthAttributes attributes;
+    private String id;
+    private String name;
+    private String email;
+    private String profile;
+    private String provider;
+    private Role role;
 
-    public CustomOAuth2User(User user, Map<String, Object> attributes) {
-        this.user = user;
+    public CustomOAuth2User(OAuthAttributes attributes) {
         this.attributes = attributes;
-    }
-
-    public User getUser() {
-        return user;
+        this.id = attributes.getId();
+        this.name = attributes.getName();
+        this.email = attributes.getEmail();
+        this.profile = attributes.getProfile();
+        this.provider = attributes.getProvider();
+        this.role = attributes.getRole();
     }
 
     @Override
     public Map<String, Object> getAttributes() {
-        return attributes;
+        return attributes.getAttributes();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey()));
+        return Collections.singleton(new SimpleGrantedAuthority(attributes.getRole().toString()));
     }
 
     @Override
     public String getName() {
-        return user.getName();
+        return attributes.getName();
     }
 }

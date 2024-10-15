@@ -19,6 +19,7 @@ public class OAuthAttributes {
     private String email;
     private String profile;
     private String provider;
+    private Role role = Role.USER;
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int LENGTH = 8;
@@ -61,7 +62,7 @@ public class OAuthAttributes {
                 .name(name)
                 .email(email)
                 .profile(profile)
-                .role(Role.USER)
+                .role(role)
                 .build();
     }
 
