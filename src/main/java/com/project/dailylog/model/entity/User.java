@@ -1,20 +1,16 @@
 package com.project.dailylog.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.dailylog.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Builder
 @Entity
@@ -26,8 +22,11 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="no")
-    private Integer no;
+    @Column(name="id")
+    private Long id;
+
+    @Column(name="email")
+    private String email;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name="password")
@@ -36,9 +35,6 @@ public class User {
     @Column(name="name")
     private String name;
 
-    @Column(name="email")
-    private String email;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -46,13 +42,13 @@ public class User {
     @Column(name="profile")
     private String profile;
 
-    @Column(name="provider")
-    private String provider;
+    private LocalDateTime lastLoginAt;
 
-    public User update(String email, String name, String profile) {
-        this.email = email;
-        this.name = name;
-        this.profile = profile;
+    public User update() {
+        this.lastLoginAt = LocalDateTime.now();
         return this;
     }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserSocialAccount> socialAccounts = new ArrayList<>();
 }
