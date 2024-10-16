@@ -1,5 +1,6 @@
 package com.project.dailylog.security.service;
 
+import com.project.dailylog.model.dto.LoginDTO;
 import com.project.dailylog.model.dto.OAuthAttributes;
 import com.project.dailylog.model.entity.User;
 import com.project.dailylog.model.entity.UserSocialAccount;
@@ -32,9 +33,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .getUserInfoEndpoint().getUserNameAttributeName();
 
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
-        saveOrUpdate(attributes);
+        User user = saveOrUpdate(attributes);
 
-        return new CustomOAuth2User(attributes);
+        LoginDTO userDTO = new LoginDTO();
+        userDTO.setId(user.getId());
+        userDTO.setName(user.getName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setRole(user.getRole());
+
+        return new CustomOAuth2User(userDTO, attributes.getAttributes());
     }
 
     private User saveOrUpdate(OAuthAttributes attributes) {

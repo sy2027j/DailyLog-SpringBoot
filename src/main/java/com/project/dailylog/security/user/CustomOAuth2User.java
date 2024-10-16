@@ -1,7 +1,6 @@
 package com.project.dailylog.security.user;
 
-import com.project.dailylog.model.dto.OAuthAttributes;
-import com.project.dailylog.model.enums.Role;
+import com.project.dailylog.model.dto.LoginDTO;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,6 +12,30 @@ import java.util.Map;
 
 @Getter
 public class CustomOAuth2User implements OAuth2User {
+
+    private LoginDTO user;
+    private Map<String, Object> attributes;
+
+    public CustomOAuth2User(LoginDTO user, Map<String, Object> attributes) {
+        this.user = user;
+        this.attributes = attributes;
+    }
+    public LoginDTO getUser() {
+        return user;
+    }
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey()));
+    }
+    @Override
+    public String getName() {
+        return user.getName();
+    }
+    /*
     private OAuthAttributes attributes;
     private String id;
     private String name;
@@ -21,7 +44,7 @@ public class CustomOAuth2User implements OAuth2User {
     private String provider;
     private Role role;
 
-    public CustomOAuth2User(OAuthAttributes attributes) {
+    public CustomOAuth2User(OAuthAttributes attributes, User user) {
         this.attributes = attributes;
         this.id = attributes.getId();
         this.name = attributes.getName();
@@ -44,5 +67,5 @@ public class CustomOAuth2User implements OAuth2User {
     @Override
     public String getName() {
         return attributes.getName();
-    }
+    }*/
 }
