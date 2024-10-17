@@ -19,16 +19,13 @@ public class JwtUtil {
     private final long accessTokenValidity = 15 * 60 * 1000L;
     private final long refreshTokenValidity = 7 * 24 * 60 * 60 * 1000L;
 
-    public JwtUtil(
-            @Value("${jwt.secret}") String secretKey,
-            @Value("${jwt.expiration_time}") long accessTokenExpTime
 
     public JwtUtil(@Value("${jwt.secret}") String secretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.accessTokenExpTime = accessTokenExpTime;
     }
 
+    // Access Token 생성
     public String createAccessToken(LoginDTO loginUser) {
         Claims claims = Jwts.claims();
         claims.put("email", loginUser.getEmail());
@@ -53,7 +50,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    // JWT에서 클레임 추출
+    // 클레임 추출
     public Claims extractClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(key)
@@ -61,27 +58,12 @@ public class JwtUtil {
                 .getBody();
     }
 
-    // 토큰에서 사용자 ID 추출
+    // 사용자 ID 추출
     public String getUserId(String token) {
         return extractClaims(token).getSubject();
     }
 
-    /**
-     * JWT 생성
-     * @param loginUser
-     * @param expireTime
-     * @return JWT String
-     */
-
-    /**
-     * Token에서 User ID 추출
-     * @param token
-     * @return User ID
-
-    public Long getUserId(String token) {
-        return Long.parseLong(parseClaims(token).getSubject());
-    } */
-
+    // JWT 검증
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -90,6 +72,7 @@ public class JwtUtil {
             logger.warn("Invalid JWT Token: " + e.getMessage());
         } catch (ExpiredJwtException e) {
             logger.warn("Expired JWT Token: " + e.getMessage());
+            // 필요하다면 여기서 만료된 토큰에 대한 처리 (재발급 유도 등)
         } catch (UnsupportedJwtException e) {
             logger.warn("Unsupported JWT Token: " + e.getMessage());
         } catch (IllegalArgumentException e) {
