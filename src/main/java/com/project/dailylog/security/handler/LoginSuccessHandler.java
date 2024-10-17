@@ -31,9 +31,6 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         String accessToken = jwtUtil.createAccessToken(loginDTO);
         String refreshToken = jwtUtil.createRefreshToken(loginDTO.getId().toString());
 
-        response.setHeader("Authorization", "Bearer " + token); // 응답 헤더에 토큰 추가
-        response.getWriter().write("로그인 성공: " + token); // 토큰을 응답 본문에 포함 (선택 사항)
-        response.setStatus(HttpServletResponse.SC_OK); // HTTP 200 OK 상태
         response.setHeader("Authorization", "Bearer " + accessToken);
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
@@ -43,14 +40,5 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         response.addCookie(refreshTokenCookie);
 
         super.onAuthenticationSuccess(request, response, authentication);
-
-        String targetUrl = UriComponentsBuilder.fromUriString("http://3.39.72.204/loginSuccess")
-                .queryParam("email", loginDTO.getEmail())
-                .build()
-                .encode(StandardCharsets.UTF_8)
-                .toUriString();
-
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
-
     }
 }

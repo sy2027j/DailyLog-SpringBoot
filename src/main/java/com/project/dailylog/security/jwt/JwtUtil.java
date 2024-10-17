@@ -16,7 +16,6 @@ import java.util.Date;
 public class JwtUtil {
     private static Logger logger = LoggerFactory.getLogger(JwtUtil.class);
     private final Key key;
-    private final long accessTokenExpTime;
     private final long accessTokenValidity = 15 * 60 * 1000L;
     private final long refreshTokenValidity = 7 * 24 * 60 * 60 * 1000L;
 
@@ -31,7 +30,6 @@ public class JwtUtil {
     }
 
     public String createAccessToken(LoginDTO loginUser) {
-        return createToken(loginUser, accessTokenExpTime);
         Claims claims = Jwts.claims();
         claims.put("email", loginUser.getEmail());
         claims.put("role", loginUser.getRole());
@@ -45,11 +43,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    private String createToken(LoginDTO loginUser, long expireTime) {
-        Claims claims = Jwts.claims();
-        claims.put("email", loginUser.getEmail());
-        claims.put("role", loginUser.getRole());
-
+    // Refresh Token 생성
     public String createRefreshToken(String userId) {
         return Jwts.builder()
                 .setSubject(userId)
@@ -59,6 +53,7 @@ public class JwtUtil {
                 .compact();
     }
 
+    // JWT에서 클레임 추출
     public Claims extractClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(key)
@@ -66,11 +61,23 @@ public class JwtUtil {
                 .getBody();
     }
 
+    // 토큰에서 사용자 ID 추출
     public String getUserId(String token) {
         return extractClaims(token).getSubject();
     }
 
     /**
+     * JWT 생성
+     * @param loginUser
+     * @param expireTime
+     * @return JWT String
+     */
+
+    /**
+     * Token에서 User ID 추출
+     * @param token
+     * @return User ID
+
     public Long getUserId(String token) {
         return Long.parseLong(parseClaims(token).getSubject());
     } */
