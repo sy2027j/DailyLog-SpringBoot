@@ -1,6 +1,7 @@
 package com.project.dailylog.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.dailylog.model.dto.LoginDTO;
 import com.project.dailylog.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -44,11 +45,20 @@ public class User {
 
     private LocalDateTime lastLoginAt;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserSocialAccount> socialAccounts = new ArrayList<>();
+
     public User update() {
         this.lastLoginAt = LocalDateTime.now();
         return this;
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserSocialAccount> socialAccounts = new ArrayList<>();
+    public LoginDTO toLoginDTO() {
+        LoginDTO userDTO = new LoginDTO();
+        userDTO.setId(this.id);
+        userDTO.setName(this.name);
+        userDTO.setEmail(this.email);
+        userDTO.setRole(this.role);
+        return userDTO;
+    }
 }

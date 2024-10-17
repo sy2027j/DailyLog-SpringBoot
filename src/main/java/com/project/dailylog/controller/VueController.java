@@ -11,7 +11,7 @@ public class VueController {
 
     private static final Logger logger = LoggerFactory.getLogger(VueController.class);
 
-    @RequestMapping(value = { "/", "/**/{path:[^\\.]*}" })
+    @RequestMapping(value = { "/dailylog/**" })
     public String index(HttpServletRequest request) {
         logger.info("Request URL: {}", request.getRequestURL());
         return "/vueStatic/index.html";

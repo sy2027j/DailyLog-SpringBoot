@@ -2,8 +2,9 @@ package com.project.dailylog.security.config;
 
 import com.project.dailylog.security.handler.LoginFailureHandler;
 import com.project.dailylog.security.handler.LoginSuccessHandler;
+import com.project.dailylog.security.jwt.JwtFilter;
 import com.project.dailylog.security.service.CustomOAuth2UserService;
-import com.project.dailylog.security.service.UserService;
+import com.project.dailylog.security.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,18 +14,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserService userService;
+    private final CustomUserDetailsService userService;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final LoginFailureHandler loginFailureHandler;
     private final LoginSuccessHandler loginSuccessHandler;
+    private final JwtFilter jwtFilter;
 
     @Bean
     public BCryptPasswordEncoder encodePassword() {
@@ -57,8 +59,8 @@ public class SecurityConfig {
                         .loginProcessingUrl("/perform_login")
                         .defaultSuccessUrl("/")
                         .failureHandler(loginFailureHandler)
-                        .successHandler(loginSuccessHandler));
-
+                        .successHandler(loginSuccessHandler))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
