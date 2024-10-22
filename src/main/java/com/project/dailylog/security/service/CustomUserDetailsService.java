@@ -4,7 +4,6 @@ import com.project.dailylog.model.entity.User;
 import com.project.dailylog.repository.UserRepository;
 import com.project.dailylog.security.user.CustomUserDetails;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public CustomUserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+    public CustomUserDetails loadUserByUsername(String userEmail) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userEmail));
+        return new CustomUserDetails(user);
+    }
+
+    public CustomUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
         User user = userRepository.findById(Long.parseLong(userId))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
 
