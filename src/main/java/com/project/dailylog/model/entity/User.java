@@ -54,11 +54,12 @@ public class User {
     }
 
     public LoginDTO toLoginDTO() {
-        LoginDTO userDTO = new LoginDTO();
-        userDTO.setId(this.id);
-        userDTO.setName(this.name);
-        userDTO.setEmail(this.email);
-        userDTO.setRole(this.role);
+        LoginDTO userDTO = LoginDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .email(this.email)
+                .role(this.role)
+                .build();
         return userDTO;
     }
 }

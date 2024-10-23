@@ -62,7 +62,7 @@ public class JwtController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        Authentication authentication = authenticationManager.authenticate(
+       Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
                         loginRequest.getPassword()
@@ -70,10 +70,11 @@ public class JwtController {
         );
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        LoginDTO loginDTO = new LoginDTO();
-        loginDTO.setEmail(userDetails.getUsername());
-        loginDTO.setRole(userDetails.getUser().getRole());
-        loginDTO.setId(userDetails.getUser().getId());
+        LoginDTO loginDTO = LoginDTO.builder()
+                .id(userDetails.getUser().getId())
+                .email(userDetails.getUsername())
+                .role(userDetails.getUser().getRole())
+                .build();
 
         String accessToken = jwtUtil.createAccessToken(loginDTO);
         String refreshToken = jwtUtil.createRefreshToken(loginDTO.getId().toString());
@@ -83,7 +84,6 @@ public class JwtController {
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
         response.addCookie(refreshTokenCookie);
-
         return ResponseEntity.ok(new LoginResponse(accessToken));
     }
 
