@@ -28,10 +28,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
         LoginDTO loginDTO = oAuth2User.getUser();
 
-        String accessToken = jwtUtil.createAccessToken(loginDTO);
         String refreshToken = jwtUtil.createRefreshToken(loginDTO.getId().toString());
-
-        response.setHeader("Authorization", "Bearer " + accessToken);
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
@@ -39,6 +36,6 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
         response.addCookie(refreshTokenCookie);
 
-        super.onAuthenticationSuccess(request, response, authentication);
+        response.sendRedirect("/dailylog/oauth2/redirect?accessToken=" + jwtUtil.createAccessToken(loginDTO));
     }
 }
