@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class LoginDTO {
     private Long id;
     private String email;
-    private String name;
+    private String nickname;
     private Role role;
     private String profile;
     private LocalDateTime lastLoginAt;

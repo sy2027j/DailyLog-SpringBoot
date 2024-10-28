@@ -15,7 +15,7 @@ public class OAuthAttributes {
     private Map<String,Object> attributes;
     private String nameAttributeKey;
     private String id;
-    private String name;
+    private String nickname;
     private String email;
     private String profile;
     private String provider;
@@ -37,11 +37,11 @@ public class OAuthAttributes {
     }
 
     @Builder
-    public OAuthAttributes(Map<String,Object> attributes, String nameAttributeKey, String id, String name, String email, String profile, String provider){
+    public OAuthAttributes(Map<String,Object> attributes, String nameAttributeKey, String id, String nickname, String email, String profile, String provider){
         this.attributes = attributes;
         this.nameAttributeKey = nameAttributeKey;
         this.id = id;
-        this.name = name;
+        this.nickname = nickname;
         this.email = email;
         this.profile = profile;
         this.provider = provider;
@@ -59,7 +59,7 @@ public class OAuthAttributes {
 
     public User toUserEntity(){
         return User.builder()
-                .name(name)
+                .nickname(nickname)
                 .email(email)
                 .profile(profile)
                 .role(role)
@@ -82,7 +82,7 @@ public class OAuthAttributes {
                 .attributes(naverAccount)
                 .nameAttributeKey(userNameAttributeName)
                 .id(naverAccount.get("id").toString())
-                .name((String) naverAccount.get("name"))
+                .nickname((String) naverAccount.get("name"))
                 .email((String) naverAccount.get("email"))
                 .profile((String) naverAccount.get("profile_image"))
                 .provider(registrationId)
@@ -97,7 +97,7 @@ public class OAuthAttributes {
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .id(attributes.get(userNameAttributeName).toString())
-                .name((String) profile.get("nickname"))
+                .nickname((String) profile.get("nickname"))
                 .email((String) kakaoAccount.get("email"))
                 .profile((String) profile.get("profile_image_url"))
                 .provider(registrationId)
@@ -109,7 +109,7 @@ public class OAuthAttributes {
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .id(attributes.get(userNameAttributeName).toString())
-                .name(generateRandomString())
+                .nickname(generateRandomString())
                 .email((String) attributes.get("email"))
                 .profile((String) attributes.get("picture"))
                 .provider(registrationId)

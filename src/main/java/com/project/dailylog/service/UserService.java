@@ -1,6 +1,7 @@
 package com.project.dailylog.service;
 
 import com.project.dailylog.model.entity.User;
+import com.project.dailylog.model.enums.Role;
 import com.project.dailylog.model.request.SignupRequest;
 import com.project.dailylog.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -22,6 +23,7 @@ public class UserService {
         userRepository.save(User.builder()
                 .email(signupRequest.getEmail())
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
+                .role(Role.USER)
                 .build()
         );
     }

@@ -37,7 +37,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         LoginDTO userDTO = LoginDTO.builder()
                 .id(user.getId())
-                .name(user.getName())
+                .nickname(user.getNickname())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .build();

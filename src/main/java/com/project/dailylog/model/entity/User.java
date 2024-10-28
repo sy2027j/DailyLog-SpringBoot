@@ -33,8 +33,8 @@ public class User {
     @Column(name="password")
     private String password;
 
-    @Column(name="name")
-    private String name;
+    @Column(name="nickname")
+    private String nickname;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -56,7 +56,7 @@ public class User {
     public LoginDTO toLoginDTO() {
         LoginDTO userDTO = LoginDTO.builder()
                 .id(this.id)
-                .name(this.name)
+                .nickname(this.nickname)
                 .email(this.email)
                 .role(this.role)
                 .build();

@@ -96,7 +96,7 @@ public class JwtController {
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("accessToken", accessToken);
         responseMap.put("userInfo", LoginDTO.builder()
-                .name(user.getName())
+                .nickname(user.getNickname())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .profile(user.getProfile())
