@@ -4,12 +4,14 @@ import com.project.dailylog.model.dto.LoginDTO;
 import com.project.dailylog.model.entity.User;
 import com.project.dailylog.model.request.LoginRequest;
 import com.project.dailylog.model.request.SignupRequest;
+import com.project.dailylog.model.request.TokenRefreshRequest;
 import com.project.dailylog.model.response.CommonResult;
-import com.project.dailylog.model.response.LoginResponse;
 import com.project.dailylog.model.response.SingleResult;
+import com.project.dailylog.repository.UserRepository;
 import com.project.dailylog.security.jwt.JwtUtil;
 import com.project.dailylog.security.service.CustomUserDetailsService;
 import com.project.dailylog.security.user.CustomUserDetails;
+import com.project.dailylog.service.RefreshTokenService;
 import com.project.dailylog.service.ResponseService;
 import com.project.dailylog.service.UserService;
 import jakarta.servlet.http.Cookie;
@@ -26,9 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -39,6 +39,8 @@ public class JwtController {
     private final ResponseService responseService;
     private AuthenticationManager authenticationManager;
     private final UserService userService;
+    private final UserRepository userRepository;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/token/refresh")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
@@ -86,6 +88,7 @@ public class JwtController {
 
         String accessToken = jwtUtil.createAccessToken(loginDTO);
         String refreshToken = jwtUtil.createRefreshToken(loginDTO.getId().toString());
+        refreshTokenService.createRefreshToken(user, refreshToken);
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
@@ -111,5 +114,28 @@ public class JwtController {
                 .findFirst()
                 .map(Cookie::getValue)
                 .orElse(null);
+    }
+
+    @PostMapping("/user")
+    public SingleResult<?> getUserInfo(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+        Optional<User> optionalUser = userRepository.findByEmail(loginRequest.getEmail());
+        User user = optionalUser.orElseThrow(() -> new NoSuchElementException("User not found"));
+        LoginDTO userDto = user.toLoginDTO();
+
+        String accessToken = jwtUtil.createAccessToken(userDto);
+        String refreshToken = jwtUtil.createRefreshToken(userDto.getId().toString());
+        refreshTokenService.createRefreshToken(user, refreshToken);
+
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+        response.addCookie(refreshTokenCookie);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("accessToken", accessToken);
+        responseMap.put("userInfo", userDto);
+
+        return responseService.getSingleResult(responseMap);
     }
 }
