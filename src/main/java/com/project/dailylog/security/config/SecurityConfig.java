@@ -4,7 +4,6 @@ import com.project.dailylog.security.handler.LoginFailureHandler;
 import com.project.dailylog.security.handler.LoginSuccessHandler;
 import com.project.dailylog.security.jwt.JwtFilter;
 import com.project.dailylog.security.service.CustomOAuth2UserService;
-import com.project.dailylog.security.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,7 +23,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userService;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final LoginFailureHandler loginFailureHandler;
     private final LoginSuccessHandler loginSuccessHandler;
@@ -53,8 +51,7 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/dailylog/join", "/dailylog/posts/**", "/dailylog/login").permitAll()
-                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
+                        .requestMatchers("/api/post/**").authenticated()
                         .anyRequest().permitAll())
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/dailylog/login")
@@ -64,11 +61,9 @@ public class SecurityConfig {
                 .formLogin(login -> login
                         .loginPage("/dailylog/login")
                         .loginProcessingUrl("/perform_login")
-                        .defaultSuccessUrl("/")
                         .failureHandler(loginFailureHandler)
                         .successHandler(loginSuccessHandler))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
 }

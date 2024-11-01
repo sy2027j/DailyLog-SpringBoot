@@ -37,7 +37,7 @@ public class JwtController {
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
     private final ResponseService responseService;
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
