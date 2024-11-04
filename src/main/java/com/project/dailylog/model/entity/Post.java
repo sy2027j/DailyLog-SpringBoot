@@ -32,5 +32,9 @@ public class Post {
     @Column(name="post_visible")
     private String postVisible;
 
+    @Column(name="created_At")
+    private LocalDateTime createdAt;
+
+    @Column(name="last_updated_at")
     private LocalDateTime lastUpdatedAt;
 }

@@ -19,37 +19,37 @@ public class PostController {
     private final ResponseService responseService;
 
     @GetMapping("/{postId}")
-    public void getPostById(@PathVariable Long postId) {
+    public void getPostById(@PathVariable Long postId) throws Exception {
         // 단건 조회 로직
     }
 
-    @GetMapping("/user/{username}")
-    public void getPostsByUser(@PathVariable String username) {
-        // 특정 유저 게시물 조회 로직
+    @GetMapping("/user/{userEmail}")
+    public CommonResult getPostsByUser(@PathVariable String userEmail) throws Exception {
+        return responseService.getListResult(postService.getPostsByUser(userEmail));
     }
 
     @GetMapping("/best")
-    public void getBestPosts() {
+    public void getBestPosts() throws Exception {
         // 베스트 게시물 조회 로직
     }
 
     @GetMapping("/recommended")
-    public void getRecommendedPosts() {
+    public void getRecommendedPosts() throws Exception {
         // 추천 게시물 조회 로직
     }
 
     @GetMapping("/neighbors")
-    public void getNeighborPosts() {
+    public void getNeighborPosts() throws Exception {
         // 이웃 게시물 조회 로직
     }
 
     @GetMapping
-    public void getAllPosts() {
-        // 전체 게시물 조회 로직
+    public CommonResult getAllPosts() throws Exception {
+        return responseService.getListResult(postService.getAllPost());
     }
 
     @PostMapping
-    public CommonResult writePost(@RequestBody PostWriteRequest writeRequest, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+    public CommonResult postWrite(@RequestBody PostWriteRequest writeRequest, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
         PostDTO postDTO = PostDTO.builder()
                 .userId(userDetails.getUser().getId())
                 .postTitle(writeRequest.getPostTitle())
