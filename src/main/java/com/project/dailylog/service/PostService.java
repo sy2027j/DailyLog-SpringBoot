@@ -50,4 +50,12 @@ public class PostService {
                 .map(PostDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public List<PostDTO> getPostById(Long postId) throws Exception {
+        Optional<Post> posts = postRepository.findById(postId);
+        return posts.stream()
+                .map(PostDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
 }

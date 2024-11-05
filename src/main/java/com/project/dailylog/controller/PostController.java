@@ -19,8 +19,8 @@ public class PostController {
     private final ResponseService responseService;
 
     @GetMapping("/{postId}")
-    public void getPostById(@PathVariable Long postId) throws Exception {
-        // 단건 조회 로직
+    public CommonResult getPostById(@PathVariable Long postId) throws Exception {
+        return responseService.getSingleResult(postService.getPostById(postId));
     }
 
     @GetMapping("/user/{userEmail}")
