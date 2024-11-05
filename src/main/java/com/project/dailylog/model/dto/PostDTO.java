@@ -18,16 +18,18 @@ public class PostDTO {
     private String postVisible;
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdatedAt;
+    private int likeCount;
 
     public static PostDTO fromEntity(Post post) {
-        PostDTO dto = new PostDTO();
-        dto.postId = post.getPostId();
-        dto.userId = post.getUserId();
-        dto.postTitle = post.getPostTitle();
-        dto.postContent = post.getPostContent();
-        dto.postVisible = post.getPostVisible();
-        dto.createdAt = post.getCreatedAt();
-        dto.lastUpdatedAt = post.getLastUpdatedAt();
-        return dto;
+        return PostDTO.builder()
+                .postId(post.getPostId())
+                .userId(post.getUserId())
+                .postTitle(post.getPostTitle())
+                .postContent(post.getPostContent())
+                .postVisible(post.getPostVisible())
+                .createdAt(post.getCreatedAt())
+                .lastUpdatedAt(post.getLastUpdatedAt())
+                .likeCount(post.getLikeCount())
+                .build();
     }
 }

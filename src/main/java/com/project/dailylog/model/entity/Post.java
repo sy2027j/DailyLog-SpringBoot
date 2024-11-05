@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @Entity
@@ -32,9 +34,16 @@ public class Post {
     @Column(name="post_visible")
     private String postVisible;
 
-    @Column(name="created_At")
+    @Column(name="created_at")
     private LocalDateTime createdAt;
 
     @Column(name="last_updated_at")
     private LocalDateTime lastUpdatedAt;
+
+    @OneToMany(mappedBy = "post")
+    private List<PostLikes> postLiked = new ArrayList<>();
+
+    public int getLikeCount() {
+        return postLiked.size();
+    }
 }

@@ -7,9 +7,13 @@ import com.project.dailylog.repository.PostRepository;
 import com.project.dailylog.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -57,5 +61,27 @@ public class PostService {
         return posts.stream()
                 .map(PostDTO::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<PostDTO> getBestPosts(String period) throws Exception {
+        LocalDateTime[] dateRange = calculateDateRange(period);
+
+        return postRepository.findBestPosts(dateRange[0], dateRange[1], PageRequest.of(0, 20)).stream()
+                .map(PostDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    private LocalDateTime[] calculateDateRange(String period) {
+        if (period.equals("week")) {
+            LocalDateTime weekStart = LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay();
+            LocalDateTime weekEnd = LocalDate.now().with(DayOfWeek.SUNDAY).atTime(23, 59, 59);
+
+            return new LocalDateTime[]{weekStart, weekEnd};
+        } else {
+            LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();
+            LocalDateTime monthEnd = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).atTime(23, 59, 59);
+            return new LocalDateTime[]{monthStart, monthEnd};
+        }
     }
 }

@@ -28,9 +28,9 @@ public class PostController {
         return responseService.getListResult(postService.getPostsByUser(userEmail));
     }
 
-    @GetMapping("/best")
-    public void getBestPosts() throws Exception {
-        // 베스트 게시물 조회 로직
+    @GetMapping("/best/{period}")
+    public CommonResult getBestPosts(@PathVariable String period) throws Exception {
+        return responseService.getListResult(postService.getBestPosts(period));
     }
 
     @GetMapping("/recommended")
