@@ -1,5 +1,6 @@
 package com.project.dailylog.service;
 
+import com.project.dailylog.exception.DuplicateEmailException;
 import com.project.dailylog.model.entity.User;
 import com.project.dailylog.model.enums.Role;
 import com.project.dailylog.model.request.SignupRequest;
@@ -14,12 +15,14 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private UserRepository userRepository;
-
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Transactional
     public void registerUser(SignupRequest signupRequest) {
-        // 이메일 중복 체크
+        if (userRepository.findByEmail(signupRequest.getEmail()).isPresent()) {
+            throw new DuplicateEmailException("이미 회원가입된 이메일입니다.");
+        }
+
         userRepository.save(User.builder()
                 .email(signupRequest.getEmail())
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
