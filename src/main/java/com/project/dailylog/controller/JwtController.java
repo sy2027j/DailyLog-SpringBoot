@@ -59,14 +59,24 @@ public class JwtController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    @PostMapping("/refresh")
+    public CommonResult refreshAccessToken(@RequestBody TokenRefreshRequest request) {
+        String requestRefreshToken = request.getRefreshToken();
+        /*User refreshTokenOpt = userRepository.findByRefreshToken(requestRefreshToken);
+
+        if (refreshTokenOpt != null) {
+            String newAccessToken = jwtUtil.createAccessToken(refreshTokenOpt.toLoginDTO());
+            return responseService.getSingleResult(newAccessToken);
+        } else {
+            return responseService.getFailResult();
+        }*/
+            return responseService.getFailResult();
+    }
+
     @PostMapping("/signup")
     public CommonResult signup(@RequestBody SignupRequest signupRequest) {
-        try {
-            userService.registerUser(signupRequest);
-            return responseService.getSuccessResult();
-        } catch (Exception e) {
-            return responseService.getFailResult();
-        }
+        userService.registerUser(signupRequest);
+        return responseService.getSuccessResult();
     }
 
     @PostMapping("/login")

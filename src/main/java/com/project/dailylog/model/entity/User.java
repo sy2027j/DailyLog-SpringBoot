@@ -46,7 +46,7 @@ public class User {
     private LocalDateTime lastLoginAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserSocialAccount> socialAccounts = new ArrayList<>();
+    private final List<UserSocialAccount> socialAccounts = new ArrayList<>();
 
     public User update() {
         this.lastLoginAt = LocalDateTime.now();

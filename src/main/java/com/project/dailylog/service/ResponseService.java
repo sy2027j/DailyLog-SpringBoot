@@ -1,6 +1,7 @@
 package com.project.dailylog.service;
 
 import com.project.dailylog.model.response.CommonResult;
+import com.project.dailylog.model.response.ErrorResult;
 import com.project.dailylog.model.response.ListResult;
 import com.project.dailylog.model.response.SingleResult;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class ResponseService {
             return msg;
         }
     }
+
     // 단일 결과
     public <T> SingleResult<T> getSingleResult(T data) {
         SingleResult<T> result = new SingleResult<>();
@@ -37,6 +39,7 @@ public class ResponseService {
         setSuccessResult(result);
         return result;
     }
+
     // 다중 결과
     public <T> ListResult<T> getListResult(List<T> list) {
         ListResult<T> result = new ListResult<>();
@@ -44,18 +47,30 @@ public class ResponseService {
         setSuccessResult(result);
         return result;
     }
+
     // 성공
     public CommonResult getSuccessResult() {
         CommonResult result = new CommonResult();
         setSuccessResult(result);
         return result;
     }
+
     // 실패
     public CommonResult getFailResult() {
         CommonResult result = new CommonResult();
         result.setSuccess(false);
         result.setCode(CommonResponse.FAIL.getCode());
         result.setMsg(CommonResponse.FAIL.getMsg());
+        return result;
+    }
+
+    // 에러
+    public ErrorResult getErrorResult(int code, String msg, String errorDetails) {
+        ErrorResult result = new ErrorResult();
+        result.setSuccess(false);
+        result.setCode(code);
+        result.setMsg(msg);
+        result.setErrorDetails(errorDetails);
         return result;
     }
 
