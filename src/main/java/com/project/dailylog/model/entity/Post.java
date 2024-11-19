@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Builder
@@ -41,9 +42,18 @@ public class Post {
     private LocalDateTime lastUpdatedAt;
 
     @OneToMany(mappedBy = "post")
-    private List<PostLikes> postLiked = new ArrayList<>();
+    private final List<PostLikes> postLiked = new ArrayList<>();
+
+    @OneToMany(mappedBy = "parentPost")
+    private final List<PostComments> postComments = new ArrayList<>();
 
     public int getLikeCount() {
         return postLiked.size();
     }
+
+    public List<PostComments> getCommentList() {
+        return Collections.unmodifiableList(postComments);
+    }
+
+    public Long getCommentCount() { return (long) postComments.size(); }
 }

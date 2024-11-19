@@ -1,9 +1,11 @@
 package com.project.dailylog.model.dto;
 
 import com.project.dailylog.model.entity.Post;
+import com.project.dailylog.model.entity.PostComments;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,6 +21,7 @@ public class PostDTO {
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdatedAt;
     private int likeCount;
+    private List<PostComments> commentsList;
 
     public static PostDTO fromEntity(Post post) {
         return PostDTO.builder()
@@ -30,6 +33,7 @@ public class PostDTO {
                 .createdAt(post.getCreatedAt())
                 .lastUpdatedAt(post.getLastUpdatedAt())
                 .likeCount(post.getLikeCount())
+                .commentsList(post.getCommentList())
                 .build();
     }
 }
