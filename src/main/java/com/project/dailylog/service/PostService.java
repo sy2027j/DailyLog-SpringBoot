@@ -64,6 +64,14 @@ public class PostService {
     }
 
     @Transactional
+    public List<PostDTO> getNeighborPost(Long userId) throws Exception {
+        List<Post> posts = postRepository.findPostsBySubscribedUsers(userId);;
+        return posts.stream()
+                .map(PostDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
     public List<PostDTO> getBestPosts(String period) throws Exception {
         LocalDateTime[] dateRange = calculateDateRange(period);
 

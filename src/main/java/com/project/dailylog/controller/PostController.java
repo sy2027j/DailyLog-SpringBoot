@@ -39,8 +39,8 @@ public class PostController {
     }
 
     @GetMapping("/neighbors")
-    public void getNeighborPosts() throws Exception {
-        // 이웃 게시물 조회 로직
+    public CommonResult getNeighborPosts(@AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        return responseService.getListResult(postService.getNeighborPost(userDetails.getUser().getId()));
     }
 
     @GetMapping

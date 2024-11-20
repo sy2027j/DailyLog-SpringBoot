@@ -3,6 +3,8 @@ package com.project.dailylog.repository.custom;
 import com.project.dailylog.model.entity.Post;
 import com.project.dailylog.model.entity.QPost;
 import com.project.dailylog.model.entity.QPostLikes;
+import com.project.dailylog.model.entity.QUserSubscribe;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +36,20 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .orderBy(postLikes.count().desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    public List<Post> findPostsBySubscribedUsers(Long userId) {
+        QPost post = QPost.post;
+        QUserSubscribe userSubscribe = QUserSubscribe.userSubscribe;
+
+        return queryFactory
+                .selectFrom(post)
+                .where(post.userId.in(
+                        JPAExpressions.select(userSubscribe.subscribedUser.id)
+                                .from(userSubscribe)
+                                .where(userSubscribe.user.id.eq(userId))
+                ))
                 .fetch();
     }
 }

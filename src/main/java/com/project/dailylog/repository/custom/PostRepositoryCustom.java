@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface PostRepositoryCustom {
     List<Post> findBestPosts(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    List<Post> findPostsBySubscribedUsers(Long userId);
 }
