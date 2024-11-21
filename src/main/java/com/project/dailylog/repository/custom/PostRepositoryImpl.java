@@ -39,6 +39,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .fetch();
     }
 
+    @Override
     public List<Post> findPostsBySubscribedUsers(Long userId) {
         QPost post = QPost.post;
         QUserSubscribe userSubscribe = QUserSubscribe.userSubscribe;
