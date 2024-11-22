@@ -50,13 +50,7 @@ public class PostController {
 
     @PostMapping
     public CommonResult postWrite(@RequestBody PostWriteRequest writeRequest, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
-        PostDTO postDTO = PostDTO.builder()
-                .userId(userDetails.getUser().getId())
-                .postTitle(writeRequest.getPostTitle())
-                .postContent(writeRequest.getPostContent())
-                .postVisible(writeRequest.getPostVisible())
-                .build();
-        postService.postWrite(postDTO);
+        postService.postWrite(writeRequest, userDetails.getUser());
         return responseService.getSuccessResult();
     }
 }

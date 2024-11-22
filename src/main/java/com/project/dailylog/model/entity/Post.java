@@ -23,8 +23,9 @@ public class Post {
     @Column(name="post_id")
     private Long postId;
 
-    @Column(name="user_id")
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
 
     @Column(name="post_title")
     private String postTitle;

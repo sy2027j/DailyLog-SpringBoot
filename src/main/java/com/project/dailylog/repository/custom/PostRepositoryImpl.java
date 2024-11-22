@@ -1,9 +1,9 @@
 package com.project.dailylog.repository.custom;
 
-import com.project.dailylog.model.entity.Post;
-import com.project.dailylog.model.entity.QPost;
-import com.project.dailylog.model.entity.QPostLikes;
-import com.project.dailylog.model.entity.QUserSubscribe;
+import com.project.dailylog.model.entity.*;
+import com.project.dailylog.model.response.PostResponse;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -20,6 +20,32 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
     public PostRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
+    }
+
+    @Override
+    public PostResponse findPostWithLikesAndUser(Long postId) {
+        QPost post = QPost.post;
+        QUser user = QUser.user;
+        QPostLikes postLikes = QPostLikes.postLikes;
+
+        return queryFactory
+                .select(Projections.fields(PostResponse.class,
+                        post.postId,
+                        post.postTitle,
+                        post.postContent,
+                        post.createdAt,
+                        post.lastUpdatedAt,
+                        user.nickname.as("authorNickname"),
+                        ExpressionUtils.as(
+                                JPAExpressions.select(postLikes.count())
+                                        .from(postLikes)
+                                        .where(postLikes.post.eq(post)),
+                                "likeCount")
+                ))
+                .from(post)
+                .leftJoin(post.user, user)
+                .where(post.postId.eq(postId))
+                .fetchOne();
     }
 
     @Override
@@ -46,7 +72,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
         return queryFactory
                 .selectFrom(post)
-                .where(post.userId.in(
+                .where(post.user.id.in(
                         JPAExpressions.select(userSubscribe.subscribedUser.id)
                                 .from(userSubscribe)
                                 .where(userSubscribe.user.id.eq(userId))

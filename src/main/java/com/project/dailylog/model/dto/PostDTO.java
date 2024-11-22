@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PostDTO {
     private Long postId;
-    private Long userId;
+    private String nickname;
     private String postTitle;
     private String postContent;
     private String postVisible;
@@ -26,7 +26,7 @@ public class PostDTO {
     public static PostDTO fromEntity(Post post) {
         return PostDTO.builder()
                 .postId(post.getPostId())
-                .userId(post.getUserId())
+                .nickname(post.getUser().getNickname())
                 .postTitle(post.getPostTitle())
                 .postContent(post.getPostContent())
                 .postVisible(post.getPostVisible())

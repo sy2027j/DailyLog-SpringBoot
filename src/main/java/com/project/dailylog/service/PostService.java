@@ -3,6 +3,11 @@ package com.project.dailylog.service;
 import com.project.dailylog.model.dto.PostDTO;
 import com.project.dailylog.model.entity.Post;
 import com.project.dailylog.model.entity.User;
+import com.project.dailylog.model.request.PostWriteRequest;
+import com.project.dailylog.model.response.CommentResponse;
+import com.project.dailylog.model.response.PostDetailResponse;
+import com.project.dailylog.model.response.PostResponse;
+import com.project.dailylog.repository.PostCommentRepository;
 import com.project.dailylog.repository.PostRepository;
 import com.project.dailylog.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -25,14 +30,15 @@ public class PostService {
 
     private PostRepository postRepository;
     private UserRepository userRepository;
+    private PostCommentRepository postCommentRepository;
 
     @Transactional
-    public void postWrite(PostDTO postDTO) throws Exception {
+    public void postWrite(PostWriteRequest postWriteRequest, User user) throws Exception {
         postRepository.save(Post.builder()
-                .userId(postDTO.getUserId())
-                .postTitle(postDTO.getPostTitle())
-                .postContent(postDTO.getPostContent())
-                .postVisible(postDTO.getPostVisible())
+                .user(user)
+                .postTitle(postWriteRequest.getPostTitle())
+                .postContent(postWriteRequest.getPostContent())
+                .postVisible(postWriteRequest.getPostVisible())
                 .build());
     }
 
@@ -56,11 +62,10 @@ public class PostService {
     }
 
     @Transactional
-    public List<PostDTO> getPostById(Long postId) throws Exception {
-        Optional<Post> posts = postRepository.findById(postId);
-        return posts.stream()
-                .map(PostDTO::fromEntity)
-                .collect(Collectors.toList());
+    public PostDetailResponse getPostById(Long postId) throws Exception {
+        PostResponse postResponse = postRepository.findPostWithLikesAndUser(postId);
+        List<CommentResponse> postComments = postCommentRepository.findCommentsByPostId(postId);
+        return new PostDetailResponse(postResponse, postComments);
     }
 
     @Transactional
