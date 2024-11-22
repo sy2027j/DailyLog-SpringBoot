@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @NoArgsConstructor
 @Getter
@@ -36,6 +38,9 @@ public class PostComments {
 
     @Column(name = "order_number")
     Long orderNumber;
+
+    @Column(name="created_at")
+    private LocalDateTime createdAt;
 
     public PostComments(String commentText, Post parentPost, PostComments upperComment , User user) {
         this.commentText = commentText;

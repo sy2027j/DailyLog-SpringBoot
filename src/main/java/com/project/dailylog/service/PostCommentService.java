@@ -1,9 +1,7 @@
 package com.project.dailylog.service;
 
 import com.project.dailylog.exception.UnauthorizedAccessException;
-import com.project.dailylog.model.entity.Post;
-import com.project.dailylog.model.entity.PostComments;
-import com.project.dailylog.model.entity.User;
+import com.project.dailylog.model.entity.*;
 import com.project.dailylog.model.request.CommentRequest;
 import com.project.dailylog.repository.PostCommentRepository;
 import com.project.dailylog.repository.PostRepository;
