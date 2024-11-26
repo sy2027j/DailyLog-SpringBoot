@@ -18,9 +18,6 @@ public class PostCommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    /**
-     * 댓글 작성 메서드
-     */
     @Transactional
     public PostComments postComment(CommentRequest commentRequest, Long userId) {
         Post parentPost = postRepository.findById(Long.valueOf(commentRequest.getPostId()))
