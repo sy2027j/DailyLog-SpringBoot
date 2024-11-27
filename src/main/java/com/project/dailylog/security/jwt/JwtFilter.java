@@ -1,6 +1,9 @@
 package com.project.dailylog.security.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.dailylog.model.response.ErrorResult;
 import com.project.dailylog.security.service.CustomUserDetailsService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,20 +26,28 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = getJwtFromRequest(request);
+        try {
+            String token = getJwtFromRequest(request);
 
-        if (token != null && jwtUtil.validateToken(token)) {
-            String userId = jwtUtil.getUserId(token);
-            UserDetails userDetails = (UserDetails) userDetailsService.loadUserByUserId(userId);
+            if (token != null && !jwtUtil.validateToken(token)) {
+                handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "JWT 토큰이 만료되었습니다.", "TOKEN_EXPIRED");
+                return;
+            }
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            if (token != null) {
+                String userId = jwtUtil.getUserId(token);
+                UserDetails userDetails = (UserDetails) userDetailsService.loadUserByUserId(userId);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            }
+            filterChain.doFilter(request, response);
+        } catch (JwtException | IllegalArgumentException e) {
+            handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다.", "INVALID_TOKEN");
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
@@ -45,6 +56,19 @@ public class JwtFilter extends OncePerRequestFilter {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    private void handleException(HttpServletResponse response, int statusCode, String msg, String errorCode) throws IOException {
+        ErrorResult errorResult = new ErrorResult(false, statusCode, msg, errorCode);
+
+        response.setStatus(statusCode);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writeValueAsString(errorResult);
+
+        response.getWriter().write(jsonResponse);
     }
 
 }
