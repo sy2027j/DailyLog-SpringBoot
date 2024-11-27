@@ -1,6 +1,5 @@
 package com.project.dailylog.controller;
 
-import com.project.dailylog.model.dto.PostDTO;
 import com.project.dailylog.model.request.PostWriteRequest;
 import com.project.dailylog.model.response.CommonResult;
 import com.project.dailylog.security.user.CustomUserDetails;
@@ -19,17 +18,17 @@ public class PostController {
     private final ResponseService responseService;
 
     @GetMapping("/{postId}")
-    public CommonResult getPostById(@PathVariable Long postId) throws Exception {
+    public CommonResult getPostById(@PathVariable(value = "postId") Long postId) throws Exception {
         return responseService.getSingleResult(postService.getPostById(postId));
     }
 
     @GetMapping("/user/{userEmail}")
-    public CommonResult getPostsByUser(@PathVariable String userEmail) throws Exception {
+    public CommonResult getPostsByUser(@PathVariable(value = "userEmail")  String userEmail) throws Exception {
         return responseService.getListResult(postService.getPostsByUser(userEmail));
     }
 
     @GetMapping("/best/{period}")
-    public CommonResult getBestPosts(@PathVariable String period) throws Exception {
+    public CommonResult getBestPosts(@PathVariable(value = "period") String period) throws Exception {
         return responseService.getListResult(postService.getBestPosts(period));
     }
 

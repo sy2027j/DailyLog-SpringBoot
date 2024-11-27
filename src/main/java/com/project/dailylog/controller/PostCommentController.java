@@ -24,7 +24,7 @@ public class PostCommentController {
     }
 
     @DeleteMapping("/{commentId}")
-    public CommonResult deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public CommonResult deleteComment(@PathVariable(value = "commentId") Long commentId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         postCommentService.deleteComment(commentId, userDetails.getUser().getId());
         return responseService.getSuccessResult();
     }

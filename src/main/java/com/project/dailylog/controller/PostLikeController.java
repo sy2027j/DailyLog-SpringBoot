@@ -17,13 +17,13 @@ public class PostLikeController {
     private final ResponseService responseService;
 
     @PostMapping("/{postId}")
-    public CommonResult likePost(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public CommonResult likePost(@PathVariable(value = "postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         postLikeService.postLike(postId, userDetails.getUser().getId());
         return responseService.getSuccessResult();
     }
 
     @DeleteMapping("/{postId}")
-    public CommonResult deleteLike(@PathVariable Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public CommonResult deleteLike(@PathVariable(value = "postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         postLikeService.deleteLike(postId, userDetails.getUser().getId());
         return responseService.getSuccessResult();
     }
