@@ -4,9 +4,8 @@ import com.project.dailylog.model.dto.LoginDTO;
 import com.project.dailylog.model.entity.User;
 import com.project.dailylog.model.request.LoginRequest;
 import com.project.dailylog.model.request.SignupRequest;
-import com.project.dailylog.model.request.TokenRefreshRequest;
 import com.project.dailylog.model.response.CommonResult;
-import com.project.dailylog.model.response.SingleResult;
+import com.project.dailylog.model.response.ErrorResult;
 import com.project.dailylog.repository.UserRepository;
 import com.project.dailylog.security.jwt.JwtUtil;
 import com.project.dailylog.security.service.CustomUserDetailsService;
@@ -45,32 +44,40 @@ public class JwtController {
     @PostMapping("/token/refresh")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
         String refreshToken = getRefreshTokenFromCookie(request);
-        if (jwtUtil.validateToken(refreshToken)) {
-            String userId = jwtUtil.getUserId(refreshToken);
-            LoginDTO loginUser = userDetailsService.loadUserByUsername(userId).getUser().toLoginDTO();
 
-            if (loginUser != null) {
-                String newAccessToken = jwtUtil.createAccessToken(loginUser);
-                return ResponseEntity.ok()
-                        .header("Authorization", "Bearer " + newAccessToken)
-                        .build();
-            }
+        if (refreshToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResult(false, 401, "Refresh Token이 누락되었습니다.", "TOKEN_MISSING"));
         }
+
+        if (!jwtUtil.validateToken(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResult(false, 401, "Refresh Token이 유효하지 않습니다.", "INVALID_TOKEN"));
+        }
+
+        if (!refreshTokenService.isRefreshTokenValid(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResult(false, 401, "Refresh Token이 DB에서 유효하지 않습니다.", "TOKEN_NOT_FOUND"));
+        }
+
+        String userId = jwtUtil.getUserId(refreshToken);
+        LoginDTO loginUser = userDetailsService.loadUserByUserId(userId).getUser().toLoginDTO();
+
+        if (loginUser != null) {
+            refreshTokenService.deleteRefreshToken(refreshToken);
+
+            String newAccessToken = jwtUtil.createAccessToken(loginUser);
+            String newRefreshToken = jwtUtil.createRefreshToken(userId);
+
+            refreshTokenService.createRefreshToken(userId, newRefreshToken);
+
+            return ResponseEntity.ok()
+                    .header("Authorization", "Bearer " + newAccessToken)
+                    .header("Set-Cookie", "refreshToken=" + newRefreshToken + "; HttpOnly; Secure")
+                    .build();
+        }
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-
-    @PostMapping("/refresh")
-    public CommonResult refreshAccessToken(@RequestBody TokenRefreshRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
-        /*User refreshTokenOpt = userRepository.findByRefreshToken(requestRefreshToken);
-
-        if (refreshTokenOpt != null) {
-            String newAccessToken = jwtUtil.createAccessToken(refreshTokenOpt.toLoginDTO());
-            return responseService.getSingleResult(newAccessToken);
-        } else {
-            return responseService.getFailResult();
-        }*/
-            return responseService.getFailResult();
     }
 
     @PostMapping("/signup")
@@ -80,7 +87,7 @@ public class JwtController {
     }
 
     @PostMapping("/login")
-    public SingleResult<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getEmail(),
@@ -98,7 +105,7 @@ public class JwtController {
 
         String accessToken = jwtUtil.createAccessToken(loginDTO);
         String refreshToken = jwtUtil.createRefreshToken(loginDTO.getId().toString());
-        refreshTokenService.createRefreshToken(user, refreshToken);
+        refreshTokenService.createRefreshToken(user.getId().toString(), refreshToken);
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
@@ -107,7 +114,6 @@ public class JwtController {
         response.addCookie(refreshTokenCookie);
 
         Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("accessToken", accessToken);
         responseMap.put("userInfo", LoginDTO.builder()
                 .nickname(user.getNickname())
                 .email(user.getEmail())
@@ -115,7 +121,9 @@ public class JwtController {
                 .profile(user.getProfile())
                 .build());
 
-        return responseService.getSingleResult(responseMap);
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + accessToken)
+                .body(responseService.getSingleResult(responseMap));
     }
 
     private String getRefreshTokenFromCookie(HttpServletRequest request) {
@@ -127,14 +135,14 @@ public class JwtController {
     }
 
     @PostMapping("/user")
-    public SingleResult<?> getUserInfo(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> getUserInfo(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         Optional<User> optionalUser = userRepository.findByEmail(loginRequest.getEmail());
         User user = optionalUser.orElseThrow(() -> new NoSuchElementException("User not found"));
         LoginDTO userDto = user.toLoginDTO();
 
         String accessToken = jwtUtil.createAccessToken(userDto);
         String refreshToken = jwtUtil.createRefreshToken(userDto.getId().toString());
-        refreshTokenService.createRefreshToken(user, refreshToken);
+        refreshTokenService.createRefreshToken(user.getId().toString(), refreshToken);
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
@@ -143,9 +151,15 @@ public class JwtController {
         response.addCookie(refreshTokenCookie);
 
         Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("accessToken", accessToken);
-        responseMap.put("userInfo", userDto);
+        responseMap.put("userInfo", LoginDTO.builder()
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .profile(user.getProfile())
+                .build());
 
-        return responseService.getSingleResult(responseMap);
+        return ResponseEntity.ok()
+                .header("Authorization", "Bearer " + accessToken)
+                .body(responseService.getSingleResult(responseMap));
     }
 }
