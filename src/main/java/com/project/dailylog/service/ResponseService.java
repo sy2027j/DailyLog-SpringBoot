@@ -65,12 +65,12 @@ public class ResponseService {
     }
 
     // 에러
-    public ErrorResult getErrorResult(int code, String msg, String errorDetails) {
+    public ErrorResult getErrorResult(int code, String errorCode, String msg) {
         ErrorResult result = new ErrorResult();
         result.setSuccess(false);
         result.setCode(code);
+        result.setErrorCode(errorCode);
         result.setMsg(msg);
-        result.setErrorDetails(errorDetails);
         return result;
     }
 
