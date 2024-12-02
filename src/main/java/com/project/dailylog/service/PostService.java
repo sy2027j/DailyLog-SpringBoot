@@ -1,12 +1,11 @@
 package com.project.dailylog.service;
 
-import com.project.dailylog.model.dto.PostDTO;
 import com.project.dailylog.model.entity.Post;
 import com.project.dailylog.model.entity.User;
 import com.project.dailylog.model.request.PostWriteRequest;
 import com.project.dailylog.model.response.CommentResponse;
 import com.project.dailylog.model.response.PostDetailResponse;
-import com.project.dailylog.model.response.PostResponse;
+import com.project.dailylog.model.response.PostSimpleResponse;
 import com.project.dailylog.repository.PostCommentRepository;
 import com.project.dailylog.repository.PostRepository;
 import com.project.dailylog.repository.UserRepository;
@@ -43,46 +42,42 @@ public class PostService {
     }
 
     @Transactional
-    public List<PostDTO> getAllPost() throws Exception {
+    public List<PostSimpleResponse> getAllPost() throws Exception {
         List<Post> posts = postRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")
                 .and(Sort.by(Sort.Direction.ASC, "lastUpdatedAt")));;
         return posts.stream()
-                .map(PostDTO::fromEntity)
+                .map(PostSimpleResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public List<PostDTO> getPostsByUser(String userEmail) throws Exception {
+    public List<PostSimpleResponse> getPostsByUser(String userEmail) throws Exception {
         Optional<User> optionalUser = userRepository.findByEmail(userEmail);
         User user = optionalUser.orElseThrow(() -> new NoSuchElementException("User not found"));
         List<Post> posts = postRepository.findByUserId(user.getId());
         return posts.stream()
-                .map(PostDTO::fromEntity)
+                .map(PostSimpleResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public PostDetailResponse getPostById(Long postId) throws Exception {
-        PostResponse postResponse = postRepository.findPostWithLikesAndUser(postId);
+        PostSimpleResponse postSimpleResponse = postRepository.findPostWithDetailInfo(postId);
         List<CommentResponse> postComments = postCommentRepository.findCommentsByPostId(postId);
-        return new PostDetailResponse(postResponse, postComments);
+        return new PostDetailResponse(postSimpleResponse, postComments);
     }
 
     @Transactional
-    public List<PostDTO> getNeighborPost(Long userId) throws Exception {
-        List<Post> posts = postRepository.findPostsBySubscribedUsers(userId);;
+    public List<PostSimpleResponse> getNeighborPost(Long userId) throws Exception {
+        List<PostSimpleResponse> posts = postRepository.findPostsBySubscribedUsers(userId);;
         return posts.stream()
-                .map(PostDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public List<PostDTO> getBestPosts(String period) throws Exception {
+    public List<PostSimpleResponse> getBestPosts(String period) throws Exception {
         LocalDateTime[] dateRange = calculateDateRange(period);
-
-        return postRepository.findBestPosts(dateRange[0], dateRange[1], PageRequest.of(0, 20)).stream()
-                .map(PostDTO::fromEntity)
-                .collect(Collectors.toList());
+        return postRepository.findBestPosts(dateRange[0], dateRange[1], PageRequest.of(0, 20));
     }
 
     private LocalDateTime[] calculateDateRange(String period) {

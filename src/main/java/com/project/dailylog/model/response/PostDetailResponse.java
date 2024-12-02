@@ -12,6 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostDetailResponse {
-    private PostResponse post;
+    private PostSimpleResponse post;
     private List<CommentResponse> comments;
 }

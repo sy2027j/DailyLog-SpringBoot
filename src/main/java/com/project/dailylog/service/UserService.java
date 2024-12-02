@@ -1,6 +1,7 @@
 package com.project.dailylog.service;
 
 import com.project.dailylog.exception.DuplicateEmailException;
+import com.project.dailylog.model.dto.LoginDTO;
 import com.project.dailylog.model.entity.User;
 import com.project.dailylog.model.enums.Role;
 import com.project.dailylog.model.request.SignupRequest;
@@ -9,6 +10,9 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -29,5 +33,12 @@ public class UserService {
                 .role(Role.USER)
                 .build()
         );
+    }
+
+    @Transactional
+    public LoginDTO getUserInfo(String userEmail) {
+        Optional<User> optionalUser = userRepository.findByEmail(userEmail);
+        User user = optionalUser.orElseThrow(() -> new NoSuchElementException("회원 정보를 찾을 수 없습니다."));
+        return user.toLoginDTO();
     }
 }

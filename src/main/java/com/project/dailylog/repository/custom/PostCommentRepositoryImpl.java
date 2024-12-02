@@ -5,7 +5,7 @@ import com.project.dailylog.model.entity.QUser;
 import com.project.dailylog.model.response.CommentResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -14,13 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
+@AllArgsConstructor
 public class PostCommentRepositoryImpl implements PostCommentRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    public PostCommentRepositoryImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     public List<CommentResponse> findCommentsByPostId(Long postId) {
         QPostComments comment = QPostComments.postComments;
@@ -33,6 +30,7 @@ public class PostCommentRepositoryImpl implements PostCommentRepositoryCustom {
                         comment.upperComment.commentId.as("upperId"),
                         comment.isCommentForComment,
                         comment.depth,
+                        user.id.as("userId"),
                         user.nickname,
                         comment.createdAt
                 ))

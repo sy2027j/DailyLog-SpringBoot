@@ -42,13 +42,13 @@ public class Post {
     @Column(name="last_updated_at")
     private LocalDateTime lastUpdatedAt;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private final List<PostLikes> postLiked = new ArrayList<>();
 
-    @OneToMany(mappedBy = "parentPost")
+    @OneToMany(mappedBy = "parentPost", fetch = FetchType.LAZY)
     private final List<PostComments> postComments = new ArrayList<>();
 
-    public int getLikeCount() {
+    public long getLikeCount() {
         return postLiked.size();
     }
 

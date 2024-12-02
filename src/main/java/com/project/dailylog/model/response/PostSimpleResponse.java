@@ -1,39 +1,39 @@
-package com.project.dailylog.model.dto;
+package com.project.dailylog.model.response;
 
 import com.project.dailylog.model.entity.Post;
-import com.project.dailylog.model.entity.PostComments;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class PostDTO {
+@NoArgsConstructor
+public class PostSimpleResponse {
     private Long postId;
-    private String nickname;
     private String postTitle;
     private String postContent;
-    private String postVisible;
+    private Long userId;
+    private String authorNickname;
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdatedAt;
-    private int likeCount;
-    private List<PostComments> commentsList;
+    private String postVisible;
+    private Long likeCount;
+    private Long commentCount;
 
-    public static PostDTO fromEntity(Post post) {
-        return PostDTO.builder()
+    public static PostSimpleResponse fromEntity(Post post) {
+        return PostSimpleResponse.builder()
                 .postId(post.getPostId())
-                .nickname(post.getUser().getNickname())
                 .postTitle(post.getPostTitle())
                 .postContent(post.getPostContent())
-                .postVisible(post.getPostVisible())
+                .userId(post.getUser().getId())
+                .authorNickname(post.getUser().getNickname())
                 .createdAt(post.getCreatedAt())
                 .lastUpdatedAt(post.getLastUpdatedAt())
+                .postVisible(post.getPostVisible())
                 .likeCount(post.getLikeCount())
-                .commentsList(post.getCommentList())
+                .commentCount((long) post.getCommentList().size())
                 .build();
     }
 }

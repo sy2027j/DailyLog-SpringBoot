@@ -6,7 +6,6 @@ import com.project.dailylog.model.request.LoginRequest;
 import com.project.dailylog.model.request.SignupRequest;
 import com.project.dailylog.model.response.CommonResult;
 import com.project.dailylog.model.response.ErrorResult;
-import com.project.dailylog.repository.UserRepository;
 import com.project.dailylog.security.jwt.JwtUtil;
 import com.project.dailylog.security.service.CustomUserDetailsService;
 import com.project.dailylog.security.user.CustomUserDetails;
@@ -34,12 +33,11 @@ import java.util.*;
 @AllArgsConstructor
 public class JwtController {
     private final JwtUtil jwtUtil;
-    private final CustomUserDetailsService userDetailsService;
     private final ResponseService responseService;
     private final AuthenticationManager authenticationManager;
-    private final UserService userService;
-    private final UserRepository userRepository;
+    private final CustomUserDetailsService userDetailsService;
     private final RefreshTokenService refreshTokenService;
+    private final UserService userService;
 
     @PostMapping("/token/refresh")
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
@@ -78,6 +76,14 @@ public class JwtController {
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    private String getRefreshTokenFromCookie(HttpServletRequest request) {
+        return Arrays.stream(request.getCookies())
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
     }
 
     @PostMapping("/signup")
@@ -126,23 +132,13 @@ public class JwtController {
                 .body(responseService.getSingleResult(responseMap));
     }
 
-    private String getRefreshTokenFromCookie(HttpServletRequest request) {
-        return Arrays.stream(request.getCookies())
-                .filter(cookie -> "refreshToken".equals(cookie.getName()))
-                .findFirst()
-                .map(Cookie::getValue)
-                .orElse(null);
-    }
-
     @PostMapping("/user")
     public ResponseEntity<?> getUserInfo(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        Optional<User> optionalUser = userRepository.findByEmail(loginRequest.getEmail());
-        User user = optionalUser.orElseThrow(() -> new NoSuchElementException("User not found"));
-        LoginDTO userDto = user.toLoginDTO();
+        LoginDTO userDto = userService.getUserInfo(loginRequest.getEmail());
 
         String accessToken = jwtUtil.createAccessToken(userDto);
         String refreshToken = jwtUtil.createRefreshToken(userDto.getId().toString());
-        refreshTokenService.createRefreshToken(user.getId().toString(), refreshToken);
+        refreshTokenService.createRefreshToken(userDto.getId().toString(), refreshToken);
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
@@ -152,10 +148,10 @@ public class JwtController {
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("userInfo", LoginDTO.builder()
-                .nickname(user.getNickname())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .profile(user.getProfile())
+                .nickname(userDto.getNickname())
+                .email(userDto.getEmail())
+                .role(userDto.getRole())
+                .profile(userDto.getProfile())
                 .build());
 
         return ResponseEntity.ok()

@@ -19,6 +19,7 @@ public class CommentResponse {
     private Long upperId;
     private boolean isCommentForComment;
     private int depth;
+    private Long userId;
     private String nickname;
     private LocalDateTime createdAt;
 
