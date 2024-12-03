@@ -42,6 +42,11 @@ public class PostService {
     }
 
     @Transactional
+    public void postDelete(Long postId) throws Exception {
+        postRepository.deleteById(postId);
+    }
+
+    @Transactional
     public List<PostSimpleResponse> getAllPost() throws Exception {
         List<Post> posts = postRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")
                 .and(Sort.by(Sort.Direction.ASC, "lastUpdatedAt")));;

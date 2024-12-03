@@ -52,4 +52,10 @@ public class PostController {
         postService.postWrite(writeRequest, userDetails.getUser());
         return responseService.getSuccessResult();
     }
+
+    @DeleteMapping("/{postId}")
+    public CommonResult postDelete(@PathVariable(value = "postId") Long postId) throws Exception {
+        postService.postDelete(postId);
+        return responseService.getSuccessResult();
+    }
 }
