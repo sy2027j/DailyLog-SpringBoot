@@ -24,7 +24,7 @@ public class Post {
     private Long postId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(name="post_title")
@@ -36,8 +36,9 @@ public class Post {
     @Column(name="post_visible")
     private String postVisible;
 
+    @Builder.Default
     @Column(name="created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name="last_updated_at")
     private LocalDateTime lastUpdatedAt;

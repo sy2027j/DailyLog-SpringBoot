@@ -9,6 +9,4 @@ public class PostWriteRequest {
     private String postTitle;
     private String postContent;
     private String postVisible;
-    private String accessToken;
-    private String refreshToken;
 }
