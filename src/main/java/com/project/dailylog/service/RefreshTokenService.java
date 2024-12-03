@@ -35,5 +35,10 @@ public class RefreshTokenService {
     public boolean isRefreshTokenValid(String token) {
         return refreshTokenRepository.existsByRefreshToken(token);
     }
+
+    @Transactional
+    public void logout(String userId) {
+        refreshTokenRepository.deleteById(userId);
+    }
 }
 
