@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.dailylog.model.dto.LoginDTO;
 import com.project.dailylog.model.enums.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -61,5 +58,10 @@ public class User {
                 .role(this.role)
                 .build();
         return userDTO;
+    }
+
+    public void updateProfile(String nickname, String profile) {
+        this.nickname = nickname;
+        this.profile = profile;
     }
 }

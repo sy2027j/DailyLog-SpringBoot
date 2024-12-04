@@ -56,11 +56,11 @@ public class ResponseService {
     }
 
     // 실패
-    public CommonResult getFailResult() {
+    public CommonResult getFailResult(String msg) {
         CommonResult result = new CommonResult();
         result.setSuccess(false);
         result.setCode(CommonResponse.FAIL.getCode());
-        result.setMsg(CommonResponse.FAIL.getMsg());
+        result.setMsg(msg);
         return result;
     }
 
