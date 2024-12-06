@@ -27,9 +27,6 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name="post_title")
-    private String postTitle;
-
     @Column(name="post_content")
     private String postContent;
 

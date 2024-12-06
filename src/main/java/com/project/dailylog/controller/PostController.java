@@ -8,6 +8,9 @@ import com.project.dailylog.service.ResponseService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/post")
@@ -48,8 +51,11 @@ public class PostController {
     }
 
     @PostMapping
-    public CommonResult postWrite(@RequestBody PostWriteRequest writeRequest, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
-        postService.postWrite(writeRequest, userDetails.getUser());
+    public CommonResult postWrite(
+            @RequestPart(value = "postWriteRequest") PostWriteRequest writeRequest,
+            @RequestPart(value = "postImages[]", required = false) List<MultipartFile> postImages,
+            @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        postService.postWrite(writeRequest, postImages, userDetails.getUser());
         return responseService.getSuccessResult();
     }
 

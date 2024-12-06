@@ -1,12 +1,14 @@
 package com.project.dailylog.service;
 
 import com.project.dailylog.model.entity.Post;
+import com.project.dailylog.model.entity.PostImage;
 import com.project.dailylog.model.entity.User;
 import com.project.dailylog.model.request.PostWriteRequest;
 import com.project.dailylog.model.response.CommentResponse;
 import com.project.dailylog.model.response.PostDetailResponse;
 import com.project.dailylog.model.response.PostSimpleResponse;
 import com.project.dailylog.repository.PostCommentRepository;
+import com.project.dailylog.repository.PostImageRepository;
 import com.project.dailylog.repository.PostRepository;
 import com.project.dailylog.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -14,7 +16,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,18 +31,31 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PostService {
 
+    private final GcsService gcsService;
     private PostRepository postRepository;
     private UserRepository userRepository;
     private PostCommentRepository postCommentRepository;
+    private final PostImageRepository postImageRepository;
 
     @Transactional
-    public void postWrite(PostWriteRequest postWriteRequest, User user) throws Exception {
-        postRepository.save(Post.builder()
+    public void postWrite(PostWriteRequest writeRequest, List<MultipartFile> postImages, User user) throws IOException {
+        Post post = Post.builder()
                 .user(user)
-                .postTitle(postWriteRequest.getPostTitle())
-                .postContent(postWriteRequest.getPostContent())
-                .postVisible(postWriteRequest.getPostVisible())
-                .build());
+                .postContent(writeRequest.getPostContent())
+                .postVisible(writeRequest.getPostVisible())
+                .build();
+        postRepository.save(post);
+        if (postImages != null && !postImages.isEmpty()) {
+            for (MultipartFile image : postImages) {
+                if (!image.isEmpty()) {
+                    String imageUrl = gcsService.upload(image);
+                    postImageRepository.save(PostImage.builder()
+                            .post(post)
+                            .imageUrl(imageUrl)
+                            .build());
+                }
+            }
+        }
     }
 
     @Transactional

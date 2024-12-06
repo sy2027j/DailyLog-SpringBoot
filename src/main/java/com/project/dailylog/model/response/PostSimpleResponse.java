@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class PostSimpleResponse {
     private Long postId;
-    private String postTitle;
     private String postContent;
     private Long userId;
     private String authorNickname;
@@ -25,7 +24,6 @@ public class PostSimpleResponse {
     public static PostSimpleResponse fromEntity(Post post) {
         return PostSimpleResponse.builder()
                 .postId(post.getPostId())
-                .postTitle(post.getPostTitle())
                 .postContent(post.getPostContent())
                 .userId(post.getUser().getId())
                 .authorNickname(post.getUser().getNickname())
