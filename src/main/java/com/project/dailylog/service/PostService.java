@@ -7,10 +7,7 @@ import com.project.dailylog.model.request.PostWriteRequest;
 import com.project.dailylog.model.response.CommentResponse;
 import com.project.dailylog.model.response.PostDetailResponse;
 import com.project.dailylog.model.response.PostSimpleResponse;
-import com.project.dailylog.repository.PostCommentRepository;
-import com.project.dailylog.repository.PostImageRepository;
-import com.project.dailylog.repository.PostRepository;
-import com.project.dailylog.repository.UserRepository;
+import com.project.dailylog.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +29,7 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final GcsService gcsService;
+    private final PostLikeRepository postLikeRepository;
     private PostRepository postRepository;
     private UserRepository userRepository;
     private PostCommentRepository postCommentRepository;
@@ -64,27 +62,41 @@ public class PostService {
     }
 
     @Transactional
-    public List<PostSimpleResponse> getAllPost() throws Exception {
+    public List<PostSimpleResponse> getAllPost(Long userId) throws Exception {
         List<Post> posts = postRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")
                 .and(Sort.by(Sort.Direction.ASC, "lastUpdatedAt")));;
         return posts.stream()
-                .map(PostSimpleResponse::fromEntity)
+                .map(post -> {
+                    PostSimpleResponse response = PostSimpleResponse.fromEntity(post);
+                    if(userId != null) {
+                        boolean isLiked = postLikeRepository.existsByPost_PostIdAndUserId(userId, post.getPostId());
+                        response.setLikedByUser(isLiked);
+                    }
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public List<PostSimpleResponse> getPostsByUser(String userEmail) throws Exception {
+    public List<PostSimpleResponse> getPostsByUser(String userEmail, Long userId) throws Exception {
         Optional<User> optionalUser = userRepository.findByEmail(userEmail);
         User user = optionalUser.orElseThrow(() -> new NoSuchElementException("User not found"));
         List<Post> posts = postRepository.findByUserId(user.getId());
         return posts.stream()
-                .map(PostSimpleResponse::fromEntity)
+                .map(post -> {
+                    PostSimpleResponse response = PostSimpleResponse.fromEntity(post);
+                    if(userId != null) {
+                        boolean isLiked = postLikeRepository.existsByPost_PostIdAndUserId(userId, post.getPostId());
+                        response.setLikedByUser(isLiked);
+                    }
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public PostDetailResponse getPostById(Long postId) throws Exception {
-        PostSimpleResponse postSimpleResponse = postRepository.findPostWithDetailInfo(postId);
+    public PostDetailResponse getPostById(Long postId, Long userId) throws Exception {
+        PostSimpleResponse postSimpleResponse = postRepository.findPostWithDetailInfo(postId, userId);
         List<CommentResponse> postComments = postCommentRepository.findCommentsByPostId(postId);
         return new PostDetailResponse(postSimpleResponse, postComments);
     }
@@ -97,9 +109,9 @@ public class PostService {
     }
 
     @Transactional
-    public List<PostSimpleResponse> getBestPosts(String period) throws Exception {
+    public List<PostSimpleResponse> getBestPosts(String period, Long userId) throws Exception {
         LocalDateTime[] dateRange = calculateDateRange(period);
-        return postRepository.findBestPosts(dateRange[0], dateRange[1], PageRequest.of(0, 20));
+        return postRepository.findBestPosts(dateRange[0], dateRange[1], PageRequest.of(0, 20), userId);
     }
 
     private LocalDateTime[] calculateDateRange(String period) {

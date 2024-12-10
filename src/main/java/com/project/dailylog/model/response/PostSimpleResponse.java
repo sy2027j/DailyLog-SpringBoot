@@ -22,6 +22,7 @@ public class PostSimpleResponse {
     private Long likeCount;
     private Long commentCount;
     private List<String> postImageUrls;
+    private boolean likedByUser = false;
 
     public static PostSimpleResponse fromEntity(Post post) {
         return PostSimpleResponse.builder()

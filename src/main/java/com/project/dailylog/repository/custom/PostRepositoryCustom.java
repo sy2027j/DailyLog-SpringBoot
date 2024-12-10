@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PostRepositoryCustom {
-    List<PostSimpleResponse> findBestPosts(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
+    List<PostSimpleResponse> findBestPosts(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable, Long userId);
     List<PostSimpleResponse> findPostsBySubscribedUsers(Long userId);
-    PostSimpleResponse findPostWithDetailInfo(Long postId);
+    PostSimpleResponse findPostWithDetailInfo(Long postId, Long userId);
 }

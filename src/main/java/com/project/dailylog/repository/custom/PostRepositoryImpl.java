@@ -7,6 +7,7 @@ import com.project.dailylog.model.entity.QUser;
 import com.project.dailylog.model.entity.QPostImage;
 import com.project.dailylog.model.entity.QUserSubscribe;
 import com.project.dailylog.model.response.PostSimpleResponse;
+import com.project.dailylog.repository.PostLikeRepository;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
@@ -31,6 +32,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     private final QPostComments postComments = QPostComments.postComments;
     private final QUserSubscribe userSubscribe = QUserSubscribe.userSubscribe;
     private final QPostImage postImage = QPostImage.postImage;
+    private final PostLikeRepository postLikeRepository;
 
     private JPAQuery<PostSimpleResponse> basePostQuery() {
         return queryFactory
@@ -52,7 +54,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     }
 
     @Override
-    public PostSimpleResponse findPostWithDetailInfo(Long postId) {
+    public PostSimpleResponse findPostWithDetailInfo(Long postId, Long userId) {
         PostSimpleResponse postSimpleResponse = basePostQuery()
                 .where(post.postId.eq(postId))
                 .groupBy(post.postId)
@@ -65,11 +67,16 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .fetch();
         postSimpleResponse.setPostImageUrls(imageResults);
 
+        if (userId != null) {
+            boolean likedByUser = postLikeRepository.existsByPost_PostIdAndUserId(userId, postId);
+            postSimpleResponse.setLikedByUser(likedByUser);
+        }
+
         return postSimpleResponse;
     }
 
     @Override
-    public List<PostSimpleResponse> findBestPosts(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+    public List<PostSimpleResponse> findBestPosts(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable, Long userId) {
         List<PostSimpleResponse> postResponses = basePostQuery()
                 .where(post.createdAt.between(startDate, endDate))
                 .groupBy(post.postId)
@@ -79,6 +86,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .fetch();
 
         postResponses = fetchPostImages(postResponses);
+        if (userId != null) {
+            postResponses = getLikedPosts(postResponses, userId);
+        }
 
         return postResponses;
     }
@@ -96,6 +106,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                 .fetch();
 
         postResponses = fetchPostImages(postResponses);
+        postResponses = getLikedPosts(postResponses, userId);
 
         return postResponses;
     }
@@ -125,4 +136,29 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
 
         return postResponses;
     }
+
+    public List<PostSimpleResponse> getLikedPosts(List<PostSimpleResponse> postResponses, Long userId) {
+        Set<Long> postIds = postResponses.stream()
+                .map(PostSimpleResponse::getPostId)
+                .collect(Collectors.toSet());
+
+        List<Tuple> results = queryFactory
+                .select(postLikes.post.postId, postLikes.count())
+                .from(postLikes)
+                .where(postLikes.userId.eq(userId)
+                        .and(postLikes.post.postId.in(postIds)))
+                .groupBy(postLikes.post.postId)
+                .fetch();
+
+        Map<Long, Boolean> likedPosts = results.stream()
+                .collect(Collectors.toMap(tuple -> tuple.get(postLikes.post.postId), tuple -> tuple.get(postLikes.count()) > 0));
+
+        postResponses.forEach(postResponse -> {
+            Boolean likedByUser = likedPosts.get(postResponse.getPostId());
+            postResponse.setLikedByUser(likedByUser != null && likedByUser);
+        });
+
+        return postResponses;
+    }
+
 }

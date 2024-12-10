@@ -21,23 +21,21 @@ public class PostController {
     private final ResponseService responseService;
 
     @GetMapping("/{postId}")
-    public CommonResult getPostById(@PathVariable(value = "postId") Long postId) throws Exception {
-        return responseService.getSingleResult(postService.getPostById(postId));
+    public CommonResult getPostById(@PathVariable(value = "postId") Long postId, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        Long userId = (userDetails != null) ? userDetails.getUser().getId() : null;
+        return responseService.getSingleResult(postService.getPostById(postId, userId));
     }
 
     @GetMapping("/user/{userEmail}")
-    public CommonResult getPostsByUser(@PathVariable(value = "userEmail")  String userEmail) throws Exception {
-        return responseService.getListResult(postService.getPostsByUser(userEmail));
+    public CommonResult getPostsByUser(@PathVariable(value = "userEmail")  String userEmail, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        Long userId = (userDetails != null) ? userDetails.getUser().getId() : null;
+        return responseService.getListResult(postService.getPostsByUser(userEmail, userId));
     }
 
     @GetMapping("/best/{period}")
-    public CommonResult getBestPosts(@PathVariable(value = "period") String period) throws Exception {
-        return responseService.getListResult(postService.getBestPosts(period));
-    }
-
-    @GetMapping("/recommended")
-    public void getRecommendedPosts() throws Exception {
-        // 추천 게시물 조회 로직
+    public CommonResult getBestPosts(@PathVariable(value = "period") String period, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        Long userId = (userDetails != null) ? userDetails.getUser().getId() : null;
+        return responseService.getListResult(postService.getBestPosts(period, userId));
     }
 
     @GetMapping("/neighbors")
@@ -46,8 +44,9 @@ public class PostController {
     }
 
     @GetMapping
-    public CommonResult getAllPosts() throws Exception {
-        return responseService.getListResult(postService.getAllPost());
+    public CommonResult getAllPosts( @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
+        Long userId = (userDetails != null) ? userDetails.getUser().getId() : null;
+        return responseService.getListResult(postService.getAllPost(userId));
     }
 
     @PostMapping
