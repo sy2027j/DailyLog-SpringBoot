@@ -46,6 +46,9 @@ public class Post {
     @OneToMany(mappedBy = "parentPost", fetch = FetchType.LAZY)
     private final List<PostComments> postComments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private final List<PostImage> postImages = new ArrayList<>();
+
     public long getLikeCount() {
         return postLiked.size();
     }

@@ -4,6 +4,7 @@ import com.project.dailylog.model.entity.Post;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,6 +21,7 @@ public class PostSimpleResponse {
     private String postVisible;
     private Long likeCount;
     private Long commentCount;
+    private List<String> postImageUrls;
 
     public static PostSimpleResponse fromEntity(Post post) {
         return PostSimpleResponse.builder()
