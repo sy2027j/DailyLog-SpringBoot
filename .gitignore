@@ -34,6 +34,7 @@ build/
 dailylog-vue
 src/main/resources/static
 src/main/resources/application-oauth.yml
+src/main/resources/dailylog-431203-4609280f9e9c.json
 
 # Created by https://www.toptal.com/developers/gitignore/api/intellij,java,maven
 # Edit at https://www.toptal.com/developers/gitignore?templates=intellij,java,maven
