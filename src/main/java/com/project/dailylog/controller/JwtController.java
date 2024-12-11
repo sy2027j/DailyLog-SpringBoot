@@ -41,7 +41,7 @@ public class JwtController {
     private final UserService userService;
 
     @PostMapping("/token/refresh")
-    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = getRefreshTokenFromCookie(request);
 
         if (refreshToken == null) {
@@ -70,9 +70,14 @@ public class JwtController {
 
             refreshTokenService.createRefreshToken(userId, newRefreshToken);
 
+            Cookie refreshTokenCookie = new Cookie("refreshToken", newRefreshToken);
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+            response.addCookie(refreshTokenCookie);
+
             return ResponseEntity.ok()
                     .header("Authorization", "Bearer " + newAccessToken)
-                    .header("Set-Cookie", "refreshToken=" + newRefreshToken + "; HttpOnly; Secure")
                     .build();
         }
 
@@ -161,8 +166,13 @@ public class JwtController {
     }
 
     @PostMapping("/logout")
-    public CommonResult logout(@AuthenticationPrincipal CustomUserDetails user) {
+    public CommonResult logout(@AuthenticationPrincipal CustomUserDetails user, HttpServletResponse response) {
         refreshTokenService.logout(user.getUsername());
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
         return responseService.getSuccessResult();
     }
 }
