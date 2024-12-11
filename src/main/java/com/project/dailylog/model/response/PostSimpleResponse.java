@@ -16,6 +16,7 @@ public class PostSimpleResponse {
     private String postContent;
     private Long userId;
     private String authorNickname;
+    private String authorProfile;
     private LocalDateTime createdAt;
     private LocalDateTime lastUpdatedAt;
     private String postVisible;
@@ -30,6 +31,7 @@ public class PostSimpleResponse {
                 .postContent(post.getPostContent())
                 .userId(post.getUser().getId())
                 .authorNickname(post.getUser().getNickname())
+                .authorProfile(post.getUser().getProfile())
                 .createdAt(post.getCreatedAt())
                 .lastUpdatedAt(post.getLastUpdatedAt())
                 .postVisible(post.getPostVisible())

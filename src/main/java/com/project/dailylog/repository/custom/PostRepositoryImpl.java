@@ -43,6 +43,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.lastUpdatedAt,
                         user.id.as("userId"),
                         user.nickname.as("authorNickname"),
+                        user.profile.as("authorProfile"),
                         post.postVisible,
                         postLikes.countDistinct().as("likeCount"),
                         postComments.countDistinct().as("commentCount")
