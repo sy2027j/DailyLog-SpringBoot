@@ -7,6 +7,7 @@ import com.project.dailylog.model.request.PostWriteRequest;
 import com.project.dailylog.model.response.CommentResponse;
 import com.project.dailylog.model.response.PostDetailResponse;
 import com.project.dailylog.model.response.PostSimpleResponse;
+import com.project.dailylog.model.response.UserHomeResponse;
 import com.project.dailylog.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -30,10 +31,11 @@ public class PostService {
 
     private final GcsService gcsService;
     private final PostLikeRepository postLikeRepository;
-    private PostRepository postRepository;
-    private UserRepository userRepository;
-    private PostCommentRepository postCommentRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+    private final PostCommentRepository postCommentRepository;
     private final PostImageRepository postImageRepository;
+    private final UserSubscribeRepository postSubscribeRepository;
 
     @Transactional
     public void postWrite(PostWriteRequest writeRequest, List<MultipartFile> postImages, User user) throws IOException {
@@ -78,20 +80,32 @@ public class PostService {
     }
 
     @Transactional
-    public List<PostSimpleResponse> getPostsByUser(String userEmail, Long userId) throws Exception {
-        Optional<User> optionalUser = userRepository.findByEmail(userEmail);
-        User user = optionalUser.orElseThrow(() -> new NoSuchElementException("User not found"));
-        List<Post> posts = postRepository.findByUserId(user.getId());
-        return posts.stream()
+    public UserHomeResponse getPostsByUser(String targetUserEmail, User requestingUser) throws Exception {
+        Optional<User> optionalUser = userRepository.findByEmail(targetUserEmail);
+        User targetUser = optionalUser.orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        Long targetId = targetUser.getId();
+        Long requestingUserId = (requestingUser != null) ? requestingUser.getId() : null;
+        UserHomeResponse userHomeResponse = userRepository.getUserFollowInfo(targetId);
+
+        if(requestingUserId != null) {
+            userHomeResponse.setIsFollowing(postSubscribeRepository.existsByUserAndSubscribedUser(requestingUser, targetUser));
+        }
+
+        List<Post> posts = postRepository.findByUserId(targetId);
+        List<PostSimpleResponse> postSimpleResponseList = posts.stream()
                 .map(post -> {
                     PostSimpleResponse response = PostSimpleResponse.fromEntity(post);
-                    if(userId != null) {
-                        boolean isLiked = postLikeRepository.existsByPost_PostIdAndUserId(userId, post.getPostId());
+                    if(requestingUserId != null) {
+                        boolean isLiked = postLikeRepository.existsByPost_PostIdAndUserId(requestingUserId, post.getPostId());
                         response.setLikedByUser(isLiked);
                     }
                     return response;
                 })
                 .collect(Collectors.toList());
+        userHomeResponse.setPosts(postSimpleResponseList);
+
+        return userHomeResponse;
     }
 
     @Transactional

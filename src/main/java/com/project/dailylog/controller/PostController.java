@@ -29,7 +29,7 @@ public class PostController {
     @GetMapping("/user/{userEmail}")
     public CommonResult getPostsByUser(@PathVariable(value = "userEmail")  String userEmail, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
         Long userId = (userDetails != null) ? userDetails.getUser().getId() : null;
-        return responseService.getListResult(postService.getPostsByUser(userEmail, userId));
+        return responseService.getSingleResult(postService.getPostsByUser(userEmail, userDetails != null ? userDetails.getUser() : null));
     }
 
     @GetMapping("/best/{period}")
