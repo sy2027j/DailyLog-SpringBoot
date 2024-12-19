@@ -17,10 +17,9 @@ public class CommentResponse {
     private Long commentId;
     private String commentText;
     private Long upperId;
-    private boolean isCommentForComment;
-    private int depth;
     private Long userId;
     private String nickname;
+    private String userProfile;
     private LocalDateTime createdAt;
 
     private List<CommentResponse> childComments = new ArrayList<>();

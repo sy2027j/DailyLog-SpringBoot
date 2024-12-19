@@ -31,11 +31,6 @@ public class PostComments {
     @JoinColumn(name="user_id")
     User user;
 
-    @Column(name = "is_comment_for_comment")
-    Boolean isCommentForComment;
-
-    Integer depth;
-
     @Column(name = "order_number")
     Long orderNumber;
 
@@ -48,14 +43,11 @@ public class PostComments {
         this.upperComment = upperComment;
         this.user = user;
         if (upperComment == null) {
-            this.isCommentForComment = false;
-            this.depth = 0 ;
             this.orderNumber = parentPost.getCommentCount();
         } else {
-            this.isCommentForComment = true;
-            this.depth = upperComment.depth+1;
             this.orderNumber = upperComment.getOrderNumber();
         }
+        this.createdAt = LocalDateTime.now();
     }
 
     public void updateCommentText(String commentText) {

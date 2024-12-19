@@ -28,16 +28,15 @@ public class PostCommentRepositoryImpl implements PostCommentRepositoryCustom {
                         comment.commentId,
                         comment.commentText,
                         comment.upperComment.commentId.as("upperId"),
-                        comment.isCommentForComment,
-                        comment.depth,
                         user.id.as("userId"),
                         user.nickname,
+                        user.profile.as("userProfile"),
                         comment.createdAt
                 ))
                 .from(comment)
                 .leftJoin(comment.user, user)
                 .where(comment.parentPost.postId.eq(postId))
-                .orderBy(comment.depth.asc(), comment.createdAt.asc())
+                .orderBy(comment.createdAt.asc())
                 .fetch();
 
         return buildCommentTree(result);
@@ -50,7 +49,7 @@ public class PostCommentRepositoryImpl implements PostCommentRepositoryCustom {
         for (CommentResponse commentDto : comments) {
             commentMap.put(commentDto.getCommentId(), commentDto);
 
-            if (commentDto.getDepth() == 0) {
+            if (commentDto.getUpperId() == null) {
                 rootComments.add(commentDto);
             } else {
                 Long parentId = commentDto.getUpperId();
