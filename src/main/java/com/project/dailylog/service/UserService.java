@@ -6,7 +6,10 @@ import com.project.dailylog.model.entity.User;
 import com.project.dailylog.model.enums.Role;
 import com.project.dailylog.model.request.SignupRequest;
 import com.project.dailylog.model.request.UserRequest;
+import com.project.dailylog.model.response.UserDetailInfoResponse;
+import com.project.dailylog.model.response.UserSocialAccountResponse;
 import com.project.dailylog.repository.UserRepository;
+import com.project.dailylog.repository.UserSocialAccountRepository;
 import com.project.dailylog.security.user.CustomUserDetails;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -15,13 +18,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final UserSocialAccountRepository accountRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final UserSocialAccountRepository userSocialAccountRepository;
 
     @Transactional
     public void registerUser(SignupRequest signupRequest) {
@@ -52,5 +58,28 @@ public class UserService {
         user.updateProfile(userRequest.getNickname(), profileImageUrl);
 
         userRepository.save(user);
+    }
+
+    @Transactional
+    public UserDetailInfoResponse getUserProfile(User user) {
+        return UserDetailInfoResponse.builder()
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .profile(user.getProfile())
+                .socialAccounts(accountRepository.findByUser(user).stream()
+                        .map(UserSocialAccountResponse::fromEntity)
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+    @Transactional
+    public void getUserSocialAccount(User user) {
+        userSocialAccountRepository.findByUser(user);
+    }
+
+    @Transactional
+    public void deleteUserSocialAccount(String socialId, User user) {
+        userSocialAccountRepository.deleteByIdAndAndUser(socialId, user);
     }
 }

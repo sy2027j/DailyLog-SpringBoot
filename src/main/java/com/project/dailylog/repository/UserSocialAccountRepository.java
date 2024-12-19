@@ -9,4 +9,6 @@ import java.util.Optional;
 
 public interface UserSocialAccountRepository extends JpaRepository<UserSocialAccount, String> {
     Optional<UserSocialAccount> findByIdAndUser(String id, User user);
+    List<UserSocialAccount> findByUser(User user);
+    void deleteByIdAndAndUser(String id, User user);
 }

@@ -22,6 +22,7 @@ public class UserSubscribeRepositoryCustomImpl implements UserSubscribeRepositor
         return queryFactory
                 .select(Projections.fields(SubscriptionResponse.class,
                         user.id,
+                        user.email,
                         user.nickname,
                         user.profile
                 ))
@@ -39,6 +40,7 @@ public class UserSubscribeRepositoryCustomImpl implements UserSubscribeRepositor
         return queryFactory
                 .select(Projections.fields(SubscriptionResponse.class,
                         user.id,
+                        user.email,
                         user.nickname,
                         user.profile
                 ))

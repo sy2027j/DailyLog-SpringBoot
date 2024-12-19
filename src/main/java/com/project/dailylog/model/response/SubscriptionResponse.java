@@ -11,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SubscriptionResponse {
     private Long id;
+    private String email;
     private String nickname;
     private String profile;
 }

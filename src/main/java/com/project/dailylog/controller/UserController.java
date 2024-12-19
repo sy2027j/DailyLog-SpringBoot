@@ -20,7 +20,7 @@ public class UserController {
     private final GcsService gcsService;
     private final ResponseService responseService;
 
-    @PostMapping("/update")
+    @PostMapping
     public CommonResult updateProfile(
             @RequestPart(value = "userRequest") UserRequest userRequest,
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
@@ -35,5 +35,22 @@ public class UserController {
         } catch (Exception e) {
             return responseService.getFailResult("프로필 업데이트 실패: " + e.getMessage());
         }
+    }
+
+    @GetMapping
+    public CommonResult getProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        return responseService.getSingleResult(userService.getUserProfile(userDetails.getUser()));
+    }
+
+    @GetMapping("/social")
+    public CommonResult getSocialAccount(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        userService.getUserSocialAccount(userDetails.getUser());
+        return responseService.getSuccessResult();
+    }
+
+    @DeleteMapping("/social")
+    public CommonResult deleteSocialAccount(@RequestBody String socialAccountId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        userService.deleteUserSocialAccount(socialAccountId, userDetails.getUser());
+        return responseService.getSuccessResult();
     }
 }
