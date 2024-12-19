@@ -28,7 +28,6 @@ public class PostController {
 
     @GetMapping("/user/{userEmail}")
     public CommonResult getPostsByUser(@PathVariable(value = "userEmail")  String userEmail, @AuthenticationPrincipal CustomUserDetails userDetails) throws Exception {
-        Long userId = (userDetails != null) ? userDetails.getUser().getId() : null;
         return responseService.getSingleResult(postService.getPostsByUser(userEmail, userDetails != null ? userDetails.getUser() : null));
     }
 

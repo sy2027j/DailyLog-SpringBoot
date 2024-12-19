@@ -3,6 +3,7 @@ package com.project.dailylog.service;
 import com.project.dailylog.model.entity.Post;
 import com.project.dailylog.model.entity.PostImage;
 import com.project.dailylog.model.entity.User;
+import com.project.dailylog.model.entity.UserSubscribeId;
 import com.project.dailylog.model.request.PostWriteRequest;
 import com.project.dailylog.model.response.CommentResponse;
 import com.project.dailylog.model.response.PostDetailResponse;
@@ -89,7 +90,8 @@ public class PostService {
         UserHomeResponse userHomeResponse = userRepository.getUserFollowInfo(targetId);
 
         if(requestingUserId != null) {
-            userHomeResponse.setIsFollowing(postSubscribeRepository.existsByUserAndSubscribedUser(requestingUser, targetUser));
+            UserSubscribeId subscribeId = new UserSubscribeId(requestingUserId, targetId);
+            userHomeResponse.setIsFollowing(postSubscribeRepository.existsById(subscribeId));
         }
 
         List<Post> posts = postRepository.findByUserId(targetId);
