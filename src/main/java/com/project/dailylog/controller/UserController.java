@@ -44,12 +44,11 @@ public class UserController {
 
     @GetMapping("/social")
     public CommonResult getSocialAccount(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        userService.getUserSocialAccount(userDetails.getUser());
-        return responseService.getSuccessResult();
+        return responseService.getListResult(userService.getUserSocialAccount(userDetails.getUser()));
     }
 
     @DeleteMapping("/social")
-    public CommonResult deleteSocialAccount(@RequestBody String socialAccountId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public CommonResult deleteSocialAccount(@RequestParam String socialAccountId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         userService.deleteUserSocialAccount(socialAccountId, userDetails.getUser());
         return responseService.getSuccessResult();
     }

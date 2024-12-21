@@ -13,13 +13,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserSocialAccountResponse {
+    private String id;
     private String provider;
     private LocalDateTime lastLoginAt;
 
-    public static UserSocialAccountResponse fromEntity(UserSocialAccount entity) {
+    public static UserSocialAccountResponse fromEntity(UserSocialAccount socialAccountEntity) {
         return new UserSocialAccountResponse(
-                entity.getProvider(),
-                entity.getLastLoginAt()
+                socialAccountEntity.getId(),
+                socialAccountEntity.getProvider(),
+                socialAccountEntity.getLastLoginAt()
         );
     }
 }

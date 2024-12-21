@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,6 +56,9 @@ public class UserService {
         User user = userRepository.findByEmail(customUserDetails.getUser().getEmail())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
 
+        if (profileImageUrl == null) {
+            profileImageUrl = user.getProfile();
+        }
         user.updateProfile(userRequest.getNickname(), profileImageUrl);
 
         userRepository.save(user);
@@ -74,8 +78,10 @@ public class UserService {
     }
 
     @Transactional
-    public void getUserSocialAccount(User user) {
-        userSocialAccountRepository.findByUser(user);
+    public List<UserSocialAccountResponse> getUserSocialAccount(User user) {
+        return userSocialAccountRepository.findByUser(user).stream()
+                .map(UserSocialAccountResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional
