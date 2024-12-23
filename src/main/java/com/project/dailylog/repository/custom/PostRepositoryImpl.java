@@ -43,6 +43,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         post.lastUpdatedAt,
                         user.id.as("userId"),
                         user.nickname.as("authorNickname"),
+                        user.email,
                         user.profile.as("authorProfile"),
                         post.postVisible,
                         postLikes.countDistinct().as("likeCount"),
@@ -69,7 +70,9 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
         postSimpleResponse.setPostImageUrls(imageResults);
 
         if (userId != null) {
+            System.err.println("상세조회: " + userId);
             boolean likedByUser = postLikeRepository.existsByPost_PostIdAndUserId(userId, postId);
+            System.err.println(likedByUser);
             postSimpleResponse.setLikedByUser(likedByUser);
         }
 
