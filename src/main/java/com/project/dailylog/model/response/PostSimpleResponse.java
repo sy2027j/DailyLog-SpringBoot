@@ -1,10 +1,13 @@
 package com.project.dailylog.model.response;
 
 import com.project.dailylog.model.entity.Post;
+import com.project.dailylog.model.entity.PostImage;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -37,6 +40,11 @@ public class PostSimpleResponse {
                 .postVisible(post.getPostVisible())
                 .likeCount(post.getLikeCount())
                 .commentCount((long) post.getCommentList().size())
+                .postImageUrls(post.getPostImages() != null
+                        ? post.getPostImages().stream()
+                        .map(PostImage::getImageUrl)
+                        .collect(Collectors.toList())
+                        : Collections.emptyList())
                 .build();
     }
 }

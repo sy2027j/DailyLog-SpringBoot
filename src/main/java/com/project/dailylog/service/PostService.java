@@ -99,7 +99,7 @@ public class PostService {
                 .map(post -> {
                     PostSimpleResponse response = PostSimpleResponse.fromEntity(post);
                     if(requestingUserId != null) {
-                        boolean isLiked = postLikeRepository.existsByPost_PostIdAndUserId(requestingUserId, post.getPostId());
+                        boolean isLiked = postLikeRepository.existsByPost_PostIdAndUserId(post.getPostId(), requestingUserId);
                         response.setLikedByUser(isLiked);
                     }
                     return response;
