@@ -82,7 +82,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
     @Override
     public List<PostSimpleResponse> findBestPosts(LocalDateTime startDate, LocalDateTime endDate, Pageable pageable, Long userId) {
         List<PostSimpleResponse> postResponses = basePostQuery()
-                .where(post.createdAt.between(startDate, endDate))
+                .where(post.createdAt.between(startDate, endDate).and(post.postVisible.eq("public")))
                 .groupBy(post.postId)
                 .orderBy(postLikes.countDistinct().desc())
                 .offset(pageable.getOffset())
@@ -104,7 +104,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom {
                         JPAExpressions.select(userSubscribe.subscribedUser.id)
                                 .from(userSubscribe)
                                 .where(userSubscribe.user.id.eq(userId))
-                ))
+                        ).and(post.postVisible.ne("private"))
+                )
                 .groupBy(post.postId)
                 .orderBy(post.createdAt.desc())
                 .fetch();

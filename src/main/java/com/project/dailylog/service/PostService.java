@@ -94,7 +94,22 @@ public class PostService {
             userHomeResponse.setIsFollowing(postSubscribeRepository.existsById(subscribeId));
         }
 
-        List<Post> posts = postRepository.findByUserId(targetId);
+        boolean isTargetSameAsRequester = (requestingUserId != null && requestingUserId.equals(targetId));
+        boolean isFollowing = (requestingUserId != null && userHomeResponse.getIsFollowing());
+
+        List<Post> posts = postRepository.findByUserId(targetId).stream()
+                .filter(post -> {
+                    String visibility = post.getPostVisible();
+                    if (isTargetSameAsRequester) {
+                        return true;
+                    } else if ("public".equals(visibility)) {
+                        return true;
+                    } else if ("friends".equals(visibility) && isFollowing) {
+                        return true;
+                    }
+                    return false;
+                })
+                .collect(Collectors.toList());
         List<PostSimpleResponse> postSimpleResponseList = posts.stream()
                 .map(post -> {
                     PostSimpleResponse response = PostSimpleResponse.fromEntity(post);
