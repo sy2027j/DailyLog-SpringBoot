@@ -30,6 +30,7 @@ public class PostCommentRepositoryImpl implements PostCommentRepositoryCustom {
                         comment.upperComment.commentId.as("upperId"),
                         user.id.as("userId"),
                         user.nickname,
+                        user.email.as("userEmail"),
                         user.profile.as("userProfile"),
                         comment.createdAt
                 ))

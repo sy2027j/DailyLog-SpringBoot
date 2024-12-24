@@ -19,6 +19,7 @@ public class CommentResponse {
     private Long upperId;
     private Long userId;
     private String nickname;
+    private String userEmail;
     private String userProfile;
     private LocalDateTime createdAt;
 
