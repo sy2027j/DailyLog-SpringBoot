@@ -42,6 +42,12 @@ public class UserController {
         return responseService.getSingleResult(userService.getUserProfile(userDetails.getUser()));
     }
 
+    @DeleteMapping
+    public CommonResult deleteAccount(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        userService.deleteUserAccount(userDetails.getUser());
+        return responseService.getSuccessResult();
+    }
+
     @GetMapping("/social")
     public CommonResult getSocialAccount(@AuthenticationPrincipal CustomUserDetails userDetails) {
         return responseService.getListResult(userService.getUserSocialAccount(userDetails.getUser()));

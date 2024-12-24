@@ -78,6 +78,11 @@ public class UserService {
     }
 
     @Transactional
+    public void deleteUserAccount(User user) {
+        userRepository.deleteById(user.getId());
+    }
+
+    @Transactional
     public List<UserSocialAccountResponse> getUserSocialAccount(User user) {
         return userSocialAccountRepository.findByUser(user).stream()
                 .map(UserSocialAccountResponse::fromEntity)
