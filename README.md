@@ -30,13 +30,13 @@ OAuth2 로그인 및 JWT 인증을 통해 사용자의 안전한 인증을 보�
 ---
 
 ### 🏠 로그인 화면  
-![DailyLog 로그인 화면](https://storage.googleapis.com/dailylog-images/LOGIN.png)
+![DailyLog 로그인 화면](https://i.ibb.co/4wMbyWGj/LOGIN.png)
 
 ### 🌟 BEST 화면  
-![DailyLog BEST 화면](https://storage.googleapis.com/dailylog-images/BEST.png)
+![DailyLog BEST 화면](https://i.ibb.co/GvhyDLcC/BEST.png)
 
 ### 📌 구독 화면  
-![DailyLog 구독 화면](https://storage.googleapis.com/dailylog-images/SUBSCRIBE.png)
+![DailyLog 구독 화면](https://i.ibb.co/CsMW8c1S/SUBSCRIBE.png)
 
 ### 📝 게시글 상세 조회 화면  
-![DailyLog 게시글 상세 조회 화면](https://storage.googleapis.com/dailylog-images/POST.png)
+![DailyLog 게시글 상세 조회 화면](https://i.ibb.co/prW5Qshj/POST.png)
